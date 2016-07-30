@@ -1,0 +1,280 @@
+
+
+
+
+Internet Engineering Task Force                                 E. Kline
+Internet-Draft                                           Google Japan KK
+Intended status: Informational                            M. Abrahamsson
+Expires: February 01, 2017                              T-Systems Nordic
+                                                           July 31, 2016
+
+
+   IPv6 Router Advertisement Prefix Information Option Exclusive Bit
+               draft-friends-6man-pio-exclusive-bit-pre00
+
+Abstract
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at http://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on February 01, 2017.
+
+Copyright Notice
+
+   Copyright (c) 2016 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (http://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
+
+
+
+
+
+
+
+
+Kline & Abrahamsson     Expires February 01, 2017               [Page 1]
+
+Internet-Draft   Prefix Information Option Exclusive Bit       July 2016
+
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
+     1.1.  Requirements Language . . . . . . . . . . . . . . . . . .   2
+   2.  Description . . . . . . . . . . . . . . . . . . . . . . . . .   2
+     2.1.  Terminology . . . . . . . . . . . . . . . . . . . . . . .   3
+       2.1.1.  term a  . . . . . . . . . . . . . . . . . . . . . . .   3
+       2.1.2.  term b  . . . . . . . . . . . . . . . . . . . . . . .   3
+       2.1.3.  term c  . . . . . . . . . . . . . . . . . . . . . . .   3
+       2.1.4.  term d  . . . . . . . . . . . . . . . . . . . . . . .   3
+   3.  Router behaviour  . . . . . . . . . . . . . . . . . . . . . .   3
+     3.1.  foo . . . . . . . . . . . . . . . . . . . . . . . . . . .   3
+     3.2.  Preparations before sending RA-X  . . . . . . . . . . . .   3
+     3.3.  Timers  . . . . . . . . . . . . . . . . . . . . . . . . .   3
+     3.4.  Host behaviour  . . . . . . . . . . . . . . . . . . . . .   4
+   4.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   4
+   5.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   4
+   6.  Security Considerations . . . . . . . . . . . . . . . . . . .   4
+   7.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   4
+     7.1.  Normative References  . . . . . . . . . . . . . . . . . .   4
+     7.2.  Informative References  . . . . . . . . . . . . . . . . .   4
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   4
+
+1.  Introduction
+
+   This document proposes a control bit in IPv6 RA PIO message called
+   the X bit, that indicates that the host receiving this RA is the only
+   host in the prefix.  The host then can stop using ND and DAD for
+   addresses within this prefix.
+
+1.1.  Requirements Language
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in RFC 2119 [RFC2119].
+
+2.  Description
+
+   There are several initiatives that propose network side practices
+   that provides customer isolation and to enhance scalability, power
+   efficiency, security and other factors in networks.  Some of these
+   involve isolating a host so that the host is the only one in the L3
+   subnet (prefix).
+
+   (list drafts/RFCs here)
+
+   This document proposes an additional bit in the IPv6 Prefix
+   Information Option (PIO) that tells the host that it's the only host
+
+
+
+Kline & Abrahamsson     Expires February 01, 2017               [Page 2]
+
+Internet-Draft   Prefix Information Option Exclusive Bit       July 2016
+
+
+   in this prefix, and that it thus doesn't need to perform ND
+   (Neighbour Discovery) and DAD (Duplicate Address Detection)
+
+2.1.  Terminology
+
+   RA-X unicast Router Advertisement packet containing a PIO (Prefix
+   Information Option) with the X bit set
+
+2.1.1.  term a
+
+2.1.2.  term b
+
+2.1.3.  term c
+
+   R3
+
+
+2.1.4.  term d
+
+3.  Router behaviour
+
+3.1.  foo
+
+   When the host starts using the network connection it sends out an RS
+   (Router Solicitation).  This is one way of detecting that a new
+   device.  If the router is configured to use RA-X, it can now prepare
+   itself to send the RA-X and then send it.
+
+   The RA-X packet MUST be sent using the unicast L2 address (if
+   applicable) and the L3 address of the host, learnt from the RS packet
+   received from the host.
+
+   (***HOW TO HANDLE WHEN FOR INSTANCE 802.1X OR WIFI-AP-ATTACHMENT IS
+   USED TO DETECT A NEW HOST***)
+
+3.2.  Preparations before sending RA-X
+
+   When the router intends to send the RA-X, it MUST before sending the
+   RA packet install an IPv6 forwarding entry, assuring the prefix works
+   as soon as the host receives the RA-X and starts using it.
+
+3.3.  Timers
+
+   The router MUST send new unicast RAs according to the times defined
+   in RFC XXX section XYZ.  It detects that the host is still available
+   either by wiki AP attachment, link being up, or by verifying host
+   availability by doing NUD (????).
+
+
+
+
+Kline & Abrahamsson     Expires February 01, 2017               [Page 3]
+
+Internet-Draft   Prefix Information Option Exclusive Bit       July 2016
+
+
+3.4.  Host behaviour
+
+   When the host receives an RA-X the host knows that it is alone and in
+   full control of the prefix, the A (Autonomous) bit is implied to be
+   set and the host can choose any valid addresses it wants within the
+   subnet.
+
+4.  Acknowledgements
+
+5.  IANA Considerations
+
+   This memo requests IANA to XXX.
+
+6.  Security Considerations
+
+7.  References
+
+7.1.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [RFC4861]  Narten, T., Nordmark, E., Simpson, W., and H. Soliman,
+              "Neighbor Discovery for IP version 6 (IPv6)", RFC 4861,
+              DOI 10.17487/RFC4861, September 2007,
+              <http://www.rfc-editor.org/info/rfc4861>.
+
+   [RFC4862]  Thomson, S., Narten, T., and T. Jinmei, "IPv6 Stateless
+              Address Autoconfiguration", RFC 4862, DOI 10.17487/
+              RFC4862, September 2007,
+              <http://www.rfc-editor.org/info/rfc4862>.
+
+7.2.  Informative References
+
+   [RFC4191]  Draves, R. and D. Thaler, "Default Router Preferences and
+              More-Specific Routes", RFC 4191, DOI 10.17487/RFC4191,
+              November 2005, <http://www.rfc-editor.org/info/rfc4191>.
+
+Authors' Addresses
+
+   Erik Kline
+   Google Japan KK
+   6-10-1 Roppongi
+   Mori Tower, 44th floor
+   Minato, Tokyo  106-6126
+   JP
+
+   Email: ek@google.com
+
+
+
+Kline & Abrahamsson     Expires February 01, 2017               [Page 4]
+
+Internet-Draft   Prefix Information Option Exclusive Bit       July 2016
+
+
+   Mikael Abrahamsson
+   T-Systems Nordic
+   Kistagangen 26
+   Stockholm
+   SE
+
+   Email: Mikael.Abrahamsson@t-systems.se
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Kline & Abrahamsson     Expires February 01, 2017               [Page 5]

@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!-- This template is for creating an Internet Draft using xml2rfc,
+     which is available here: http://xml.resource.org. -->
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!-- One method to get references from the online citation libraries.
+     There has to be one entity for each item to be referenced.
+     An alternate method (rfc include) is described in the references. -->
+
+<!ENTITY RFC1122 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.1122.xml">
+<!ENTITY RFC1918 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.1918.xml">
+<!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC3493 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3493.xml">
+<!ENTITY RFC3879 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3879.xml">
+<!ENTITY RFC4191 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4191.xml">
+<!ENTITY RFC4861 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4861.xml">
+<!ENTITY RFC4862 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4862.xml">
+<!ENTITY RFC6418 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6418.xml">
+]>
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<!-- used by XSLT processors -->
+<!-- For a complete list and description of processing instructions (PIs),
+     please see http://xml.resource.org/authoring/README.html. -->
+<!-- Below are generally applicable Processing Instructions (PIs) that most I-Ds might want to use.
+     (Here they are set differently than their defaults in xml2rfc v1.32) -->
+<?rfc strict="yes" ?>
+<!-- give errors regarding ID-nits and DTD validation -->
+<!-- control the table of contents (ToC) -->
+<?rfc toc="yes"?>
+<!-- generate a ToC -->
+<?rfc tocdepth="4"?>
+<!-- the number of levels of subsections in ToC. default: 3 -->
+<!-- control references -->
+<?rfc symrefs="yes"?>
+<!-- use symbolic references tags, i.e, [RFC2119] instead of [1] -->
+<?rfc sortrefs="yes" ?>
+<!-- sort the reference entries alphabetically -->
+<!-- control vertical white space
+     (using these PIs as follows is recommended by the RFC Editor) -->
+<?rfc compact="yes" ?>
+<!-- do not start each main section on a new page -->
+<?rfc subcompact="no" ?>
+<!-- keep one blank line between list items -->
+<!-- end of list of popular I-D processing instructions -->
+<rfc category="info"
+     ipr="trust200902"
+     docName="draft-friends-6man-pio-exclusive-bit-pre00">
+
+  <!-- category values: std, bcp, info, exp, and historic
+     ipr values: full3667, noModification3667, noDerivatives3667
+     you can add the attributes updates="NNNN" and obsoletes="NNNN"
+     they will automatically be output with "(if approved)" -->
+
+
+  <front>
+    <title abbrev="Prefix Information Option Exclusive Bit"
+      >IPv6 Router Advertisement Prefix Information Option Exclusive Bit</title>
+
+    <author fullname="Erik Kline"
+            initials="E." surname="Kline">
+      <organization>Google Japan KK</organization>
+      <address>
+        <postal>
+          <street>6-10-1 Roppongi</street>
+          <street>Mori Tower, 44th floor</street>
+          <city>Minato</city>
+          <region>Tokyo</region>
+          <code>106-6126</code>
+          <country>JP</country>
+        </postal>
+        <phone></phone>
+        <email>ek@google.com</email>
+      </address>
+    </author>
+
+    <author fullname="Mikael Abrahamsson"
+            initials="M." surname="Abrahamsson">
+      <organization>T-Systems Nordic</organization>
+      <address>
+        <postal>
+          <street>Kistagangen 26</street>
+          <city>Stockholm</city>
+          <country>SE</country>
+        </postal>
+        <email>Mikael.Abrahamsson@t-systems.se</email>
+      </address>
+    </author>
+
+    <date/>
+
+    <!-- Meta-data Declarations -->
+
+    <area>General</area>
+
+    <workgroup>Internet Engineering Task Force</workgroup>
+
+    <!-- WG name at the upperleft corner of the doc,
+         IETF is fine for individual submissions.
+	 If this element is not present, the default is "Network Working Group",
+         which is used by the RFC Editor as a nod to the history of the IETF. -->
+
+    <keyword>ipv6</keyword>
+    <keyword>6man</keyword>
+    <keyword>router</keyword>
+    <keyword>advertisement</keyword>
+    <keyword>prefix</keyword>
+    <keyword>information</keyword>
+    <keyword>option</keyword>
+    <keyword>exclusive</keyword>
+
+    <abstract>
+      <t>
+      </t>
+    </abstract>
+  </front>
+
+
+  <middle>
+    <section title="Introduction">
+      <t>
+This document proposes a control bit in IPv6 RA PIO message called the X bit,
+that indicates that the host receiving this RA is the only host in the prefix.
+The host then can stop using ND and DAD for addresses within this prefix.
+      </t>
+      <t>
+      </t>
+
+      <section title="Requirements Language">
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+        "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+        document are to be interpreted as described in <xref
+        target="RFC2119">RFC 2119</xref>.</t>
+      </section>
+    </section>
+
+    <section anchor="description" title="Description">
+      <t>
+There are several initiatives that propose network side practices that provides
+customer isolation and to enhance scalability, power efficiency, security and
+other factors in networks. Some of these involve isolating a host so that the
+host is the only one in the L3 subnet (prefix).
+      </t>
+
+      <t>
+(list drafts/RFCs here)
+      </t>
+
+      <t>
+This document proposes an additional bit in the IPv6 Prefix Information Option
+(PIO) that tells the host that it's the only host in this prefix, and that it
+thus doesn't need to perform ND (Neighbour Discovery) and DAD
+(Duplicate Address Detection)
+      </t>
+      <t>
+        <list style="symbols">
+<t></t>
+<t></t>
+<t></t>
+<t></t>
+<t></t>
+        </list>
+      </t>
+      <t>
+      </t>
+      <t>
+      </t>
+
+      <section title="Terminology">
+        <t>
+RA-X unicast Router Advertisement packet containing a PIO
+(Prefix Information Option) with the X bit set
+        </t>
+        <t>
+          <list hangIndent="4" style="letters">
+            <t>
+            </t>
+            <t>
+            </t>
+          </list>
+        </t>
+
+        <t>
+        </t>
+
+        <section title="term a">
+          <t>
+          </t>
+          <t>
+            <list counter="reqs" hangIndent="4" style="format R%d">
+              <t>
+              </t>
+            </list>
+          </t>
+        </section>
+
+        <section title="term b">
+          <t>
+          </t>
+
+          <t>
+            <list counter="reqs" hangIndent="4" style="format R%d">
+              <t>
+              </t>
+            </list>
+          </t>
+        </section>
+
+        <section title="term c">
+          <t>
+          </t>
+          <t>
+            <list counter="reqs" hangIndent="4" style="format R%d">
+              <t>
+<vspace blankLines="1"/>
+              </t>
+            </list>
+          </t>
+        </section>
+
+        <section title="term d">
+          <t>
+          </t>
+        </section>
+      </section>
+    </section>
+
+    <section title="Router behaviour">
+      <section title="foo">
+        <t>
+When the host starts using the network connection it sends out an RS
+(Router Solicitation). This is one way of detecting that a new device. If
+the router is configured to use RA-X, it can now prepare itself to send the
+RA-X and then send it.
+        </t>
+        <t>
+The RA-X packet MUST be sent using the unicast L2 address (if applicable)
+and the L3 address of the host, learnt from the RS packet received from the
+host.
+        </t>
+        <t>
+(***HOW TO HANDLE WHEN FOR INSTANCE 802.1X OR WIFI-AP-ATTACHMENT IS USED TO DETECT A NEW HOST***)
+        </t>
+        <t>
+          <list counter="reqs" hangIndent="4" style="format R%d">
+            <t>
+            </t>
+            <t>
+            </t>
+          </list>
+        </t>
+      </section>
+
+      <section title="Preparations before sending RA-X">
+        <t>
+When the router intends to send the RA-X, it MUST before sending the RA packet
+install an IPv6 forwarding entry, assuring the prefix works as soon as the host
+receives the RA-X and starts using it.
+        </t>
+      </section>
+
+      <section title="Timers">
+        <t>
+The router MUST send new unicast RAs according to the times defined in RFC XXX
+section XYZ. It detects that the host is still available either by wiki AP
+attachment, link being up, or by verifying host availability by doing NUD (????).
+        </t>
+      </section>
+
+      <section title="Host behaviour">
+        <t>
+When the host receives an RA-X the host knows that it is alone and in full
+control of the prefix, the A (Autonomous) bit is implied to be set and the
+host can choose any valid addresses it wants within the subnet.
+        </t>
+      </section>
+    </section>
+
+    <!-- Possibly a 'Contributors' section ... -->
+    <section anchor="acks" title="Acknowledgements">
+      <t>
+      </t>
+      <t>
+      </t>
+    </section>
+
+    <section anchor="IANA" title="IANA Considerations">
+      <t>
+This memo requests IANA to XXX.
+      </t>
+    </section>
+
+    <section anchor="Security" title="Security Considerations">
+      <t>
+      </t>
+      <t>
+      </t>
+      <t>
+        <list style="symbols">
+          <t>
+          </t>
+          <t>
+          </t>
+        </list>
+      </t>
+    </section>
+  </middle>
+
+
+  <back>
+    <!-- References split into informative and normative -->
+
+    <!-- There are 2 ways to insert reference entries from the citation libraries:
+     1. define an ENTITY at the top, and use "ampersand character"RFC2629; here (as shown)
+     2. simply use a PI "less than character"?rfc include="reference.RFC.2119.xml"?> here
+        (for I-Ds: include="reference.I-D.narten-iana-considerations-rfc2434bis.xml")
+
+     Both are cited textually in the same manner: by using xref elements.
+     If you use the PI option, xml2rfc will, by default, try to find included files in the same
+     directory as the including file. You can also define the XML_LIBRARY environment variable
+     with a value containing a set of directories to search.  These can be either in the local
+     filing system or remote ones accessed by http (http://domain/dir/... ).-->
+
+    <references title="Normative References">
+      &RFC2119;
+      &RFC4861;
+      &RFC4862;
+    </references>
+
+    <references title="Informative References">
+      &RFC4191;
+    </references>
+
+<!--
+    <section anchor="android-comparison" title="Comparison with Android implementation">
+      <t>This becomes an Appendix.</t>
+    </section>
+-->
+  </back>
+</rfc>
