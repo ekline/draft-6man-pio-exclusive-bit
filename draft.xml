@@ -15,6 +15,8 @@
 <!ENTITY RFC4861 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4861.xml">
 <!ENTITY RFC4862 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4862.xml">
 <!ENTITY RFC6418 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6418.xml">
+<!ENTITY RFC7559 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7559.xml">
+<!ENTITY RFC7934 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7934.xml">
 ]>
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
 <!-- used by XSLT processors -->
@@ -41,7 +43,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="info"
+<rfc category="exp"
      ipr="trust200902"
      docName="draft-friends-6man-pio-exclusive-bit-pre00">
 
@@ -117,9 +119,28 @@
   <middle>
     <section title="Introduction">
       <t>
-This document proposes a control bit in IPv6 RA PIO message called the X bit,
-that indicates that the host receiving this RA is the only host in the prefix.
-The host then can stop using ND and DAD for addresses within this prefix.
+This document defines a new control bit in the Internet Protocol version 6
+(IPv6) Router Advertisement (RA) Prefix Information Option (PIO) flags octet
+that indicates that the node receiving this RA is the exclusive receiver of
+all traffic destined to any address with that prefix. Subject to the lifetime
+constraints within the PIO, the receiving node is effectively the exclusive
+owner of this prefix and the sending router's next hop for all traffic
+destined to any address within this prefix.
+      </t>
+      <t>
+Termed the eXclusive bit (or "X bit"), nodes that recognize this can perform
+some traffic-saving optimizations (e.g. disable Neighbor Discovery (ND) and
+Duplicate Address Detection (DAD) for addresses within this prefix) and more
+easily make creative use of its address space (vis a vis 7934).
+      </t>
+      <t>
+RFC 4861 compliant nodes that do not understand the X bit are not negatively
+impacted--they can process the PIO under existing standards and make use of
+the information exactly as if the X bit were not set.
+      </t>
+      <t>
+It is possible for a node to receive multiple PIOs from multiple routers
+with a mix of exclusive and non-exclusive prefix information.
       </t>
       <t>
       </t>
@@ -132,7 +153,7 @@ The host then can stop using ND and DAD for addresses within this prefix.
       </section>
     </section>
 
-    <section anchor="description" title="Description">
+    <section anchor="summary" title="Summary">
       <t>
 There are several initiatives that propose network side practices that provides
 customer isolation and to enhance scalability, power efficiency, security and
@@ -164,7 +185,7 @@ thus doesn't need to perform ND (Neighbour Discovery) and DAD
       <t>
       </t>
 
-      <section title="Terminology">
+      <section title="Option format">
         <t>
 RA-X unicast Router Advertisement packet containing a PIO
 (Prefix Information Option) with the X bit set
@@ -172,6 +193,7 @@ RA-X unicast Router Advertisement packet containing a PIO
         <t>
           <list hangIndent="4" style="letters">
             <t>
+https://tools.ietf.org/html/rfc4861#section-4.6.2
             </t>
             <t>
             </t>
@@ -218,8 +240,51 @@ RA-X unicast Router Advertisement packet containing a PIO
 
         <section title="term d">
           <t>
+For backward compatibility, the A bit MUST be set. A node that does
+not understand the X bit should still be able to form addresses as it
+would for any other SLAAC-capable link. A node implementing this
+specification MUST ignore the A bit if the X bit is set; it makes no
+difference, since the X bit implies any packets destined to addresses
+in the specified prefix will be routed to the node.
           </t>
         </section>
+      </section>
+    </section>
+
+    <section title="Host behaviour">
+      <section title="basics">
+        <t>
+When the host receives an RA-X the host knows that it is alone and in full
+control of the prefix, the A (Autonomous) bit is implied to be set and the
+host can choose any valid addresses it wants within the subnet.
+        </t>
+      </section>
+
+      <section title="Comparison with non-X-bit aware hosts">
+        <t>
+Link-local address behaviour.  Changing your address might result in a
+loss of connectivity.  Respond to Neighbor Solications for link-local
+or risk connectivity troubles.
+        </t>
+      </section>
+
+      <section title="Renewal">
+        <t>
+Because the router(s) may not necessarily have lower layer hints about the
+disappearance of node that received a PIO with the X bit, hosts SHOULD
+re-RS at 1/2, 3/4, and 7/8 of preferred lifetime.
+        </t>
+        <t>
+Hosts compliant with this document SHOULD implement resilient-rs:
+https://tools.ietf.org/html/rfc7559
+        </t>
+        <t>
+Nodes SHOULD prefer sending traffic sourced from an exclusive prefix to the
+set of routers from which it received that prefix. (cite baker draft)
+Subject to default router lifetimes and RIO information, etc.
+        </t>
+        <t>
+        </t>
       </section>
     </section>
 
@@ -242,8 +307,12 @@ host.
         <t>
           <list counter="reqs" hangIndent="4" style="format R%d">
             <t>
+L2 signals for loss of host
             </t>
             <t>
+Consider not reassigning a prefix immediately given that some hosts
+might reappear, attempt DNAv6, and it may be desirable to re-PIO-X
+them with the same prefix.
             </t>
           </list>
         </t>
@@ -257,19 +326,45 @@ receives the RA-X and starts using it.
         </t>
       </section>
 
-      <section title="Timers">
+      <section title="Implementation considerations">
         <t>
-The router MUST send new unicast RAs according to the times defined in RFC XXX
-section XYZ. It detects that the host is still available either by wiki AP
-attachment, link being up, or by verifying host availability by doing NUD (????).
+Out of scope things that are with careful consideration include:
+        </t>
+        <t>
+Routers SHOULD NOT announce the same prefix to two different nodes within
+the valid lifetime of the earlier of the two PIO announcements.
+        </t>
+        <t>
+A link may operate in a mode where routers announce RAs to all nodes,
+possibly with non-exclusive PIO data, and non-zero default router lifetimes.
+Separately, one or more other nodes on the link may announce exclusive PIO
+information to nodes along with zero default router lifetimes.
+"Host processing" rules require that the receiving node (or "host")
+send exclusive PIO originated traffic destined off-link through routers with
+non-zero default router lifetimes.
+        </t>
+        <t>
         </t>
       </section>
 
-      <section title="Host behaviour">
+      <section title="Timers">
         <t>
-When the host receives an RA-X the host knows that it is alone and in full
-control of the prefix, the A (Autonomous) bit is implied to be set and the
-host can choose any valid addresses it wants within the subnet.
+Routers SHOULD NOT announce the same prefix to two different nodes within
+the valid lifetime of the earlier of the two PIO announcements.
+        </t>
+        <t>
+It is a configuration error for more than one router on a link to announce
+PIO-X information for the same prefix with substantially different lifetimes.
+        </t>
+        <t>
+The router MUST send new unicast RAs according to the times defined in RFC XXX
+section XYZ. It detects that the host is still available either by wiki AP
+attachment, link being up, or by verifying host availability by doing NUD.
+
+Energy RFC reference, to balance out the number of transmissions required for
+the host to maintain connectivity given a certain percentage of packet loss
+with the resource impact on the host of receiving and processing an RA (e.g.
+if the receiving host has energy conservation objectives).
         </t>
       </section>
     </section>
@@ -323,10 +418,12 @@ This memo requests IANA to XXX.
       &RFC2119;
       &RFC4861;
       &RFC4862;
+      &RFC7559;
     </references>
 
     <references title="Informative References">
       &RFC4191;
+      &RFC7934;
     </references>
 
 <!--

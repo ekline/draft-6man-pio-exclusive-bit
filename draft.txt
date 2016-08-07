@@ -4,9 +4,9 @@
 
 Internet Engineering Task Force                                 E. Kline
 Internet-Draft                                           Google Japan KK
-Intended status: Informational                            M. Abrahamsson
-Expires: February 01, 2017                              T-Systems Nordic
-                                                           July 31, 2016
+Intended status: Experimental                             M. Abrahamsson
+Expires: February 14, 2017                              T-Systems Nordic
+                                                         August 13, 2016
 
 
    IPv6 Router Advertisement Prefix Information Option Exclusive Bit
@@ -29,7 +29,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on February 01, 2017.
+   This Internet-Draft will expire on February 14, 2017.
 
 Copyright Notice
 
@@ -53,40 +53,69 @@ Copyright Notice
 
 
 
-Kline & Abrahamsson     Expires February 01, 2017               [Page 1]
+Kline & Abrahamsson     Expires February 14, 2017               [Page 1]
 
-Internet-Draft   Prefix Information Option Exclusive Bit       July 2016
+Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
 
 
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
-     1.1.  Requirements Language . . . . . . . . . . . . . . . . . .   2
-   2.  Description . . . . . . . . . . . . . . . . . . . . . . . . .   2
-     2.1.  Terminology . . . . . . . . . . . . . . . . . . . . . . .   3
+     1.1.  Requirements Language . . . . . . . . . . . . . . . . . .   3
+   2.  Summary . . . . . . . . . . . . . . . . . . . . . . . . . . .   3
+     2.1.  Option format . . . . . . . . . . . . . . . . . . . . . .   3
        2.1.1.  term a  . . . . . . . . . . . . . . . . . . . . . . .   3
-       2.1.2.  term b  . . . . . . . . . . . . . . . . . . . . . . .   3
-       2.1.3.  term c  . . . . . . . . . . . . . . . . . . . . . . .   3
-       2.1.4.  term d  . . . . . . . . . . . . . . . . . . . . . . .   3
-   3.  Router behaviour  . . . . . . . . . . . . . . . . . . . . . .   3
-     3.1.  foo . . . . . . . . . . . . . . . . . . . . . . . . . . .   3
-     3.2.  Preparations before sending RA-X  . . . . . . . . . . . .   3
-     3.3.  Timers  . . . . . . . . . . . . . . . . . . . . . . . . .   3
-     3.4.  Host behaviour  . . . . . . . . . . . . . . . . . . . . .   4
-   4.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   4
-   5.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   4
-   6.  Security Considerations . . . . . . . . . . . . . . . . . . .   4
-   7.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   4
-     7.1.  Normative References  . . . . . . . . . . . . . . . . . .   4
-     7.2.  Informative References  . . . . . . . . . . . . . . . . .   4
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   4
+       2.1.2.  term b  . . . . . . . . . . . . . . . . . . . . . . .   4
+       2.1.3.  term c  . . . . . . . . . . . . . . . . . . . . . . .   4
+       2.1.4.  term d  . . . . . . . . . . . . . . . . . . . . . . .   4
+   3.  Host behaviour  . . . . . . . . . . . . . . . . . . . . . . .   4
+     3.1.  basics  . . . . . . . . . . . . . . . . . . . . . . . . .   4
+     3.2.  Comparison with non-X-bit aware hosts . . . . . . . . . .   4
+     3.3.  Renewal . . . . . . . . . . . . . . . . . . . . . . . . .   4
+   4.  Router behaviour  . . . . . . . . . . . . . . . . . . . . . .   5
+     4.1.  foo . . . . . . . . . . . . . . . . . . . . . . . . . . .   5
+     4.2.  Preparations before sending RA-X  . . . . . . . . . . . .   5
+     4.3.  Implementation considerations . . . . . . . . . . . . . .   5
+     4.4.  Timers  . . . . . . . . . . . . . . . . . . . . . . . . .   6
+   5.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   6
+   6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   6
+   7.  Security Considerations . . . . . . . . . . . . . . . . . . .   6
+   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   6
+     8.1.  Normative References  . . . . . . . . . . . . . . . . . .   6
+     8.2.  Informative References  . . . . . . . . . . . . . . . . .   7
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   7
 
 1.  Introduction
 
-   This document proposes a control bit in IPv6 RA PIO message called
-   the X bit, that indicates that the host receiving this RA is the only
-   host in the prefix.  The host then can stop using ND and DAD for
-   addresses within this prefix.
+   This document defines a new control bit in the Internet Protocol
+   version 6 (IPv6) Router Advertisement (RA) Prefix Information Option
+   (PIO) flags octet that indicates that the node receiving this RA is
+   the exclusive receiver of all traffic destined to any address with
+   that prefix.  Subject to the lifetime constraints within the PIO, the
+   receiving node is effectively the exclusive owner of this prefix and
+   the sending router's next hop for all traffic destined to any address
+   within this prefix.
+
+   Termed the eXclusive bit (or "X bit"), nodes that recognize this can
+   perform some traffic-saving optimizations (e.g. disable Neighbor
+   Discovery (ND) and Duplicate Address Detection (DAD) for addresses
+   within this prefix) and more easily make creative use of its address
+   space (vis a vis 7934).
+
+   RFC 4861 compliant nodes that do not understand the X bit are not
+   negatively impacted--they can process the PIO under existing
+   standards and make use of the information exactly as if the X bit
+   were not set.
+
+
+
+Kline & Abrahamsson     Expires February 14, 2017               [Page 2]
+
+Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
+
+
+   It is possible for a node to receive multiple PIOs from multiple
+   routers with a mix of exclusive and non-exclusive prefix information.
 
 1.1.  Requirements Language
 
@@ -94,7 +123,7 @@ Table of Contents
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
    document are to be interpreted as described in RFC 2119 [RFC2119].
 
-2.  Description
+2.  Summary
 
    There are several initiatives that propose network side practices
    that provides customer isolation and to enhance scalability, power
@@ -106,36 +135,100 @@ Table of Contents
 
    This document proposes an additional bit in the IPv6 Prefix
    Information Option (PIO) that tells the host that it's the only host
-
-
-
-Kline & Abrahamsson     Expires February 01, 2017               [Page 2]
-
-Internet-Draft   Prefix Information Option Exclusive Bit       July 2016
-
-
    in this prefix, and that it thus doesn't need to perform ND
    (Neighbour Discovery) and DAD (Duplicate Address Detection)
 
-2.1.  Terminology
+   o
+
+   o
+
+   o
+
+   o
+
+   o
+
+2.1.  Option format
 
    RA-X unicast Router Advertisement packet containing a PIO (Prefix
    Information Option) with the X bit set
 
+   a.  https://tools.ietf.org/html/rfc4861#section-4.6.2
+
+   b.
+
 2.1.1.  term a
 
+   R1
+
+
+
+
+
+Kline & Abrahamsson     Expires February 14, 2017               [Page 3]
+
+Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
+
+
 2.1.2.  term b
+
+   R2
 
 2.1.3.  term c
 
    R3
 
 
+
 2.1.4.  term d
 
-3.  Router behaviour
+   For backward compatibility, the A bit MUST be set.  A node that does
+   not understand the X bit should still be able to form addresses as it
+   would for any other SLAAC-capable link.  A node implementing this
+   specification MUST ignore the A bit if the X bit is set; it makes no
+   difference, since the X bit implies any packets destined to addresses
+   in the specified prefix will be routed to the node.
 
-3.1.  foo
+3.  Host behaviour
+
+3.1.  basics
+
+   When the host receives an RA-X the host knows that it is alone and in
+   full control of the prefix, the A (Autonomous) bit is implied to be
+   set and the host can choose any valid addresses it wants within the
+   subnet.
+
+3.2.  Comparison with non-X-bit aware hosts
+
+   Link-local address behaviour.  Changing your address might result in
+   a loss of connectivity.  Respond to Neighbor Solications for link-
+   local or risk connectivity troubles.
+
+3.3.  Renewal
+
+   Because the router(s) may not necessarily have lower layer hints
+   about the disappearance of node that received a PIO with the X bit,
+   hosts SHOULD re-RS at 1/2, 3/4, and 7/8 of preferred lifetime.
+
+   Hosts compliant with this document SHOULD implement resilient-rs:
+   https://tools.ietf.org/html/rfc7559
+
+   Nodes SHOULD prefer sending traffic sourced from an exclusive prefix
+   to the set of routers from which it received that prefix. (cite baker
+   draft) Subject to default router lifetimes and RIO information, etc.
+
+
+
+
+
+Kline & Abrahamsson     Expires February 14, 2017               [Page 4]
+
+Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
+
+
+4.  Router behaviour
+
+4.1.  foo
 
    When the host starts using the network connection it sends out an RS
    (Router Solicitation).  This is one way of detecting that a new
@@ -149,64 +242,122 @@ Internet-Draft   Prefix Information Option Exclusive Bit       July 2016
    (***HOW TO HANDLE WHEN FOR INSTANCE 802.1X OR WIFI-AP-ATTACHMENT IS
    USED TO DETECT A NEW HOST***)
 
-3.2.  Preparations before sending RA-X
+   R4  L2 signals for loss of host
+
+   R5  Consider not reassigning a prefix immediately given that some
+       hosts might reappear, attempt DNAv6, and it may be desirable to
+       re-PIO-X them with the same prefix.
+
+4.2.  Preparations before sending RA-X
 
    When the router intends to send the RA-X, it MUST before sending the
    RA packet install an IPv6 forwarding entry, assuring the prefix works
    as soon as the host receives the RA-X and starts using it.
 
-3.3.  Timers
+4.3.  Implementation considerations
+
+   Out of scope things that are with careful consideration include:
+
+   Routers SHOULD NOT announce the same prefix to two different nodes
+   within the valid lifetime of the earlier of the two PIO
+   announcements.
+
+   A link may operate in a mode where routers announce RAs to all nodes,
+   possibly with non-exclusive PIO data, and non-zero default router
+   lifetimes.  Separately, one or more other nodes on the link may
+   announce exclusive PIO information to nodes along with zero default
+   router lifetimes.  "Host processing" rules require that the receiving
+   node (or "host") send exclusive PIO originated traffic destined off-
+   link through routers with non-zero default router lifetimes.
+
+
+
+
+
+
+
+
+Kline & Abrahamsson     Expires February 14, 2017               [Page 5]
+
+Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
+
+
+4.4.  Timers
+
+   Routers SHOULD NOT announce the same prefix to two different nodes
+   within the valid lifetime of the earlier of the two PIO
+   announcements.
+
+   It is a configuration error for more than one router on a link to
+   announce PIO-X information for the same prefix with substantially
+   different lifetimes.
 
    The router MUST send new unicast RAs according to the times defined
    in RFC XXX section XYZ.  It detects that the host is still available
    either by wiki AP attachment, link being up, or by verifying host
-   availability by doing NUD (????).
+   availability by doing NUD.  Energy RFC reference, to balance out the
+   number of transmissions required for the host to maintain
+   connectivity given a certain percentage of packet loss with the
+   resource impact on the host of receiving and processing an RA (e.g.
+   if the receiving host has energy conservation objectives).
 
+5.  Acknowledgements
 
-
-
-Kline & Abrahamsson     Expires February 01, 2017               [Page 3]
-
-Internet-Draft   Prefix Information Option Exclusive Bit       July 2016
-
-
-3.4.  Host behaviour
-
-   When the host receives an RA-X the host knows that it is alone and in
-   full control of the prefix, the A (Autonomous) bit is implied to be
-   set and the host can choose any valid addresses it wants within the
-   subnet.
-
-4.  Acknowledgements
-
-5.  IANA Considerations
+6.  IANA Considerations
 
    This memo requests IANA to XXX.
 
-6.  Security Considerations
+7.  Security Considerations
 
-7.  References
+   o
 
-7.1.  Normative References
+   o
+
+8.  References
+
+8.1.  Normative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
-              Requirement Levels", BCP 14, RFC 2119, March 1997.
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <http://www.rfc-editor.org/info/rfc2119>.
 
    [RFC4861]  Narten, T., Nordmark, E., Simpson, W., and H. Soliman,
               "Neighbor Discovery for IP version 6 (IPv6)", RFC 4861,
               DOI 10.17487/RFC4861, September 2007,
               <http://www.rfc-editor.org/info/rfc4861>.
 
+
+
+
+
+
+
+Kline & Abrahamsson     Expires February 14, 2017               [Page 6]
+
+Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
+
+
    [RFC4862]  Thomson, S., Narten, T., and T. Jinmei, "IPv6 Stateless
-              Address Autoconfiguration", RFC 4862, DOI 10.17487/
-              RFC4862, September 2007,
+              Address Autoconfiguration", RFC 4862,
+              DOI 10.17487/RFC4862, September 2007,
               <http://www.rfc-editor.org/info/rfc4862>.
 
-7.2.  Informative References
+   [RFC7559]  Krishnan, S., Anipko, D., and D. Thaler, "Packet-Loss
+              Resiliency for Router Solicitations", RFC 7559,
+              DOI 10.17487/RFC7559, May 2015,
+              <http://www.rfc-editor.org/info/rfc7559>.
+
+8.2.  Informative References
 
    [RFC4191]  Draves, R. and D. Thaler, "Default Router Preferences and
               More-Specific Routes", RFC 4191, DOI 10.17487/RFC4191,
               November 2005, <http://www.rfc-editor.org/info/rfc4191>.
+
+   [RFC7934]  Colitti, L., Cerf, V., Cheshire, S., and D. Schinazi,
+              "Host Address Availability Recommendations", BCP 204,
+              RFC 7934, DOI 10.17487/RFC7934, July 2016,
+              <http://www.rfc-editor.org/info/rfc7934>.
 
 Authors' Addresses
 
@@ -218,12 +369,6 @@ Authors' Addresses
    JP
 
    Email: ek@google.com
-
-
-
-Kline & Abrahamsson     Expires February 01, 2017               [Page 4]
-
-Internet-Draft   Prefix Information Option Exclusive Bit       July 2016
 
 
    Mikael Abrahamsson
@@ -244,37 +389,4 @@ Internet-Draft   Prefix Information Option Exclusive Bit       July 2016
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Kline & Abrahamsson     Expires February 01, 2017               [Page 5]
+Kline & Abrahamsson     Expires February 14, 2017               [Page 7]
