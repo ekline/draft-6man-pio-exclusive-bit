@@ -45,7 +45,8 @@
 <!-- end of list of popular I-D processing instructions -->
 <rfc category="exp"
      ipr="trust200902"
-     docName="draft-friends-6man-pio-exclusive-bit-pre00">
+     updates="4861"
+     docName="draft-kline-6man-pio-exclusive-bit-pre00">
 
   <!-- category values: std, bcp, info, exp, and historic
      ipr values: full3667, noModification3667, noDerivatives3667
@@ -111,6 +112,19 @@
 
     <abstract>
       <t>
+This document defines a new control bit in the IPv6 RA PIO flags octet
+that indicates that the node receiving this RA is the exclusive receiver of
+all traffic destined to any address with that prefix.
+      </t>
+      <t>
+Termed the eXclusive bit (or "X bit"), nodes that recognize this can perform
+some traffic-saving optimizations (e.g. disable ND and DAD for addresses
+within this prefix) and more easily make creative use of its address space
+(vis a vis 7934 or even 64share).
+      </t>
+      <t>
+Use of the X bit is backward compatible with existing compliant
+implementations.
       </t>
     </abstract>
   </front>
@@ -123,9 +137,9 @@ This document defines a new control bit in the Internet Protocol version 6
 (IPv6) Router Advertisement (RA) Prefix Information Option (PIO) flags octet
 that indicates that the node receiving this RA is the exclusive receiver of
 all traffic destined to any address with that prefix. Subject to the lifetime
-constraints within the PIO, the receiving node is effectively the exclusive
-owner of this prefix and the sending router's next hop for all traffic
-destined to any address within this prefix.
+constraints within the PIO, the receiving node effectively has exclusive
+use of the prefix, and will be the next hop destination for the sending router,
+and possibly other routers, for all traffic destined toward the prefix.
       </t>
       <t>
 Termed the eXclusive bit (or "X bit"), nodes that recognize this can perform
@@ -134,28 +148,17 @@ Duplicate Address Detection (DAD) for addresses within this prefix) and more
 easily make creative use of its address space (vis a vis 7934).
       </t>
       <t>
-RFC 4861 compliant nodes that do not understand the X bit are not negatively
-impacted--they can process the PIO under existing standards and make use of
-the information exactly as if the X bit were not set.
+Use of the X bit is backward compatible with existing compliant
+implementations. RFC 4861 compliant nodes that do not understand the X bit
+are not negatively impacted.  They must ignore it, and can process the PIO
+under existing standards, making use of the information exactly as if the
+X bit were not set.
       </t>
-      <t>
-It is possible for a node to receive multiple PIOs from multiple routers
-with a mix of exclusive and non-exclusive prefix information.
-      </t>
-      <t>
-      </t>
-
-      <section title="Requirements Language">
-        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-        "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
-        document are to be interpreted as described in <xref
-        target="RFC2119">RFC 2119</xref>.</t>
-      </section>
     </section>
 
-    <section anchor="summary" title="Summary">
+    <section anchor="motivation" title="Motivation">
       <t>
-There are several initiatives that propose network side practices that provides
+There are several initiatives that propose network side practices that provide
 customer isolation and to enhance scalability, power efficiency, security and
 other factors in networks. Some of these involve isolating a host so that the
 host is the only one in the L3 subnet (prefix).
@@ -185,73 +188,182 @@ thus doesn't need to perform ND (Neighbour Discovery) and DAD
       <t>
       </t>
 
-      <section title="Option format">
+      <section title="Requirements Language">
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+        "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+        document are to be interpreted as described in <xref
+        target="RFC2119">RFC 2119</xref>.</t>
+      </section>
+
+      <section title="Terminology">
         <t>
-RA-X unicast Router Advertisement packet containing a PIO
-(Prefix Information Option) with the X bit set
-        </t>
-        <t>
-          <list hangIndent="4" style="letters">
-            <t>
-https://tools.ietf.org/html/rfc4861#section-4.6.2
-            </t>
-            <t>
-            </t>
-          </list>
+Throughout this document the following terminology is used purely for the
+sake of brevity.
         </t>
 
-        <t>
-        </t>
-
-        <section title="term a">
+        <section title="PIO-X">
           <t>
-          </t>
-          <t>
-            <list counter="reqs" hangIndent="4" style="format R%d">
-              <t>
-              </t>
-            </list>
+The term "PIO-X" is used to refer to a Prefix Information Option (PIO)
+that has the X bit set.
           </t>
         </section>
 
-        <section title="term b">
+        <section title="PIO-X RA">
           <t>
-          </t>
-
-          <t>
-            <list counter="reqs" hangIndent="4" style="format R%d">
-              <t>
-              </t>
-            </list>
+The phrase "PIO-X RA" is used to refer to an RA that contains one or more
+PIO-X entries (the same RA may also contain one or more PIOs without the
+X bit set).
           </t>
         </section>
 
-        <section title="term c">
+        <section title="Host">
           <t>
-          </t>
-          <t>
-            <list counter="reqs" hangIndent="4" style="format R%d">
-              <t>
-<vspace blankLines="1"/>
-              </t>
-            </list>
-          </t>
-        </section>
-
-        <section title="term d">
-          <t>
-For backward compatibility, the A bit MUST be set. A node that does
-not understand the X bit should still be able to form addresses as it
-would for any other SLAAC-capable link. A node implementing this
-specification MUST ignore the A bit if the X bit is set; it makes no
-difference, since the X bit implies any packets destined to addresses
-in the specified prefix will be routed to the node.
+The term "host" may be used interchangably throughout this document to mean
+a node receiving an RA. No behaviour restrictions traditionally associated
+with distinctions between host and router are placed on nodes receiving any
+PIO-X RA.
           </t>
         </section>
       </section>
     </section>
 
-    <section title="Host behaviour">
+    <section title="Updated Prefix Information Option">
+      <t>
+This document updates the Prefix Information Option specification in
+RFC 4861, section 4.6.2 with the specification of new bit from the
+former Reserved1 field as follows.
+      </t>
+
+      <section title="Updated format description">
+        <figure align="center">
+          <artwork align="left"><![CDATA[
+       0                   1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |     Type      |    Length     | Prefix Length |L|A|X|  Rsrvd1 |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                         Valid Lifetime                        |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                       Preferred Lifetime                      |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                           Reserved2                           |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                                                               |
+      +                                                               +
+      |                                                               |
+      +                            Prefix                             +
+      |                                                               |
+      +                                                               +
+      |                                                               |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                                ]]>
+          </artwork>
+        </figure>
+
+        <texttable align="left" style="none">
+          <preamble>Fields:</preamble>
+          <ttcol></ttcol>
+          <ttcol></ttcol>
+          <ttcol></ttcol>
+          <c>&nbsp;</c>
+          <c>X</c>
+          <c>
+The eXclusive ownership indicator flag, defined by this document. When set,
+the receiving node can be assured that all traffic destined to any address
+within the specified Prefix will forwarded to itself by, at a minimum, the
+router from which the encapsulating RA was received, but possibly other
+routers as well.
+
+When not set, the receiving node MUST NOT make any assumptions of exclusive
+use of the specified Prefix, i.e. processing is unchanged from previous
+standards behvaiour.
+          </c>
+
+          <c>&nbsp;</c><c>&nbsp;</c><c>&nbsp;</c>
+
+          <c>&nbsp;</c>
+          <c>Rsrvd1</c>
+          <c>
+Retains the same meaning as Reserved1 from rfc4861#section-4.6.2.
+          </c>
+
+          <c>&nbsp;</c><c>&nbsp;</c><c>&nbsp;</c>
+
+          <c>&nbsp;</c>
+          <c>All other fields</c>
+          <c>Retain their same meaning rfc4861#section-4.6.2.</c>
+        </texttable>
+      </section>
+      <section anchor="pio-x_processing" title="Processing">
+<t>
+Nodes compliant with this specification, i.e. those that understand the X bit,
+MUST ignore the actual values of the L and A bits and instead intepret them
+as follows:
+</t>
+
+<t>
+<list style="symbols">
+  <t>interpret the L bit as if it were 0 (L=0)</t>
+  <t>interpret the A bit as it it were 1 (A=1)</t>
+</list>
+The rationale for this is discussed further in <xref target="host_behaviour"/>.
+</t>
+
+<t>
+It is RECOMMENDED that RAs containing a PIO with the X bit set also explicitly
+configure the PIO flags L=0 and A=1, for backward compatibility
+(use by non X-bit aware nodes).
+</t>
+      </section>
+    </section>
+
+    <section anchor="host_behaviour" title="Host behaviour">
+      <section title="PIO-X processing">
+        <t>
+A receiving node compliant with this document processes a PIO entry with
+the X bit set following the requirements in previous standards documents
+(chiefly rfc4861#section-6.3.4) with one key difference: the actual values
+of the L bit and the A bit are ignored. Instead, the receiving node MUST
+interpret the L and A bits according to <xref target="pio-x_processing"/>.
+        </t>
+
+        <section title="L bit">
+          <t>
+Because a PIO-X aware node will know that it has exclusive use of a prefix
+with non-zero valid lifetime, the prefix itself cannot be considered to be
+on-link with respect to the link on which the PIO-X RA was received.
+          </t>
+          <t>
+Note that a given address from within the prefix may be considered on-link
+according to the definition in rfc5942#section-4, item 1, should the
+receiving node chose to configure that address on said link, but this is in
+no way synonymous with the entire prefix being considered on-link.
+          </t>
+        </section>
+
+        <section title="A bit">
+          <t>
+Because a PIO-X aware node will know that it has exclusive use of a prefix
+with non-zero valid lifetime, autoconfiguration of addresses according to
+any desired scheme (rfc4862, rfc7217, et cetera) is inherent in the setting
+of the X bit.
+          </t>
+          <t>
+Accordingly, the A bit MUST be interpreted as having been set if the host
+wishes to apply standard address generation schemes that require the bit to
+be set.
+          </t>
+          <t>
+Crucially, the PIO-X receiving node is NOT required to perform Duplicate
+Address Detection (DAD) on any address it configures, nor is it required
+to configure the address on the link over which the PIO-X information was
+received (i.e. it is under no obligation to form addresses in a way that
+they meet the qualification of being on-link according to the definition
+in rfc5942#section-4, item 1).
+          </t>
+        </section>
+      </section>
+
       <section title="basics">
         <t>
 When the host receives an RA-X the host knows that it is alone and in full
@@ -283,8 +395,25 @@ Nodes SHOULD prefer sending traffic sourced from an exclusive prefix to the
 set of routers from which it received that prefix. (cite baker draft)
 Subject to default router lifetimes and RIO information, etc.
         </t>
+      <t>
+It is possible for a node to receive multiple PIOs from multiple routers
+with a mix of exclusive and non-exclusive prefix information.
+      </t>
+<t>
+The intent here is not to create sophisticated routing architectures can
+would be better handled by an actual routing protocol. As such:
+<list>
         <t>
+A PIO-X receiving node SHOULD NOT generate ICMPv6 Redirects (reference) for any address
+within its exclusive prefix. Redirecting portions of exclusive prefixes to other on-link
+nodes is not a supported configuration.
         </t>
+<t>
+A PIO-X receiving node SHOULD NOT transmit RAs with any subset of its exclusive
+prefixes via the same interface through which the exlucive prefix was learned.
+</t>
+</list>
+</t>
       </section>
     </section>
 
@@ -379,22 +508,18 @@ if the receiving host has energy conservation objectives).
 
     <section anchor="IANA" title="IANA Considerations">
       <t>
-This memo requests IANA to XXX.
+This memo contains no requests of IANA.
       </t>
     </section>
 
     <section anchor="Security" title="Security Considerations">
       <t>
-      </t>
-      <t>
-      </t>
-      <t>
-        <list style="symbols">
-          <t>
-          </t>
-          <t>
-          </t>
-        </list>
+This document fundamentally introduces no new protocol or behaviour
+substantively different from existing behaviour on a link which guarantees
+a unique /64 prefix to every attached host. It only describes a mechanism
+to convey that topological reality, allowing the host to make certain
+optimizations as well as share the exclusive prefix as it sees fit with
+other nodes according to its capabilities and policies.
       </t>
     </section>
   </middle>
