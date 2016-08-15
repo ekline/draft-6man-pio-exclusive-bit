@@ -175,27 +175,15 @@ thus doesn't need to perform ND (Neighbour Discovery) and DAD
 (Duplicate Address Detection)
       </t>
       <t>
-        <list style="symbols">
-<t></t>
-<t></t>
-<t></t>
-<t></t>
-<t></t>
-        </list>
+XXX
       </t>
       <t>
+Much more here.
       </t>
-      <t>
-      </t>
+    </section>
 
-      <section title="Requirements Language">
-        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-        "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
-        document are to be interpreted as described in <xref
-        target="RFC2119">RFC 2119</xref>.</t>
-      </section>
-
-      <section title="Terminology">
+  <section title="Terminology">
+    <section title="Abbreviations">
         <t>
 Throughout this document the following terminology is used purely for the
 sake of brevity.
@@ -225,13 +213,20 @@ PIO-X RA.
           </t>
         </section>
       </section>
+
+      <section title="Requirements Language">
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+        "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+        document are to be interpreted as described in <xref
+        target="RFC2119">RFC 2119</xref>.</t>
+      </section>
     </section>
 
     <section title="Updated Prefix Information Option">
       <t>
 This document updates the Prefix Information Option specification in
-RFC 4861, section 4.6.2 with the specification of new bit from the
-former Reserved1 field as follows.
+RFC 4861, section 4.6.2 with the definition of a bit from the former Reserved1
+field as follows.
       </t>
 
       <section title="Updated format description">
@@ -268,7 +263,7 @@ former Reserved1 field as follows.
           <c>&nbsp;</c>
           <c>X</c>
           <c>
-The eXclusive ownership indicator flag, defined by this document. When set,
+The eXclusive use indicator flag, defined by this document. When set,
 the receiving node can be assured that all traffic destined to any address
 within the specified Prefix will forwarded to itself by, at a minimum, the
 router from which the encapsulating RA was received, but possibly other
@@ -327,7 +322,7 @@ of the L bit and the A bit are ignored. Instead, the receiving node MUST
 interpret the L and A bits according to <xref target="pio-x_processing"/>.
         </t>
 
-        <section title="L bit">
+        <section title="PIO L bit">
           <t>
 Because a PIO-X aware node will know that it has exclusive use of a prefix
 with non-zero valid lifetime, the prefix itself cannot be considered to be
@@ -341,7 +336,7 @@ no way synonymous with the entire prefix being considered on-link.
           </t>
         </section>
 
-        <section title="A bit">
+        <section title="PIO A bit">
           <t>
 Because a PIO-X aware node will know that it has exclusive use of a prefix
 with non-zero valid lifetime, autoconfiguration of addresses according to
@@ -349,75 +344,98 @@ any desired scheme (rfc4862, rfc7217, et cetera) is inherent in the setting
 of the X bit.
           </t>
           <t>
-Accordingly, the A bit MUST be interpreted as having been set if the host
-wishes to apply standard address generation schemes that require the bit to
-be set.
-          </t>
-          <t>
-Crucially, the PIO-X receiving node is NOT required to perform Duplicate
-Address Detection (DAD) on any address it configures, nor is it required
-to configure the address on the link over which the PIO-X information was
-received (i.e. it is under no obligation to form addresses in a way that
-they meet the qualification of being on-link according to the definition
-in rfc5942#section-4, item 1).
+Accordingly, the A bit can be interpreted as having been set, should the host
+choose to apply standard address generation schemes that require the bit to
+be set. It is free to assign any address formed from an exclusive prefix to any
+available interface; it is not required to configure the address on the link
+over which the PIO-X RA was received (i.e. it is under no obligation to form
+addresses such that they would be classified as on-link (according to the
+definition in rfc5942#section-4, item 1).
           </t>
         </section>
       </section>
 
-      <section title="basics">
+      <section title="Neighbor Discovery implications">
+        <section title="Duplicate Address Detection (DAD)">
+          <t>
+Whatever use the host makes of the exclusive prefix during its valid lifetime,
+it SHOULD NOT perform Duplicate Address Detection (DAD) on any address it
+configures from within the prefix if that address is configured on either the
+interface over which the PIO-X RA was received or on a loopback interface.
+Note that this does not absolve the host from performing DAD in all scenarios;
+if, for example, the host uses the prefix for 64sharing it MUST at a minimum
+defend via DAD any addresses it has configured for itself as documented in
+Requirement 2 of RFC7278 section 3.
+          </t>
+        </section>
+
+        <section title="Router Solications (RSes)">
+          <t>
+Routers announcing PIO-X RAs may record the link-local address of an RS as
+the next hop for the exclusive prefix. As such, hosts compliant with this
+specification SHOULD issue Router Solications from a link-local address; they
+SHOULD NOT use the unspecified address (::) when sending RSes.
+          </t>
+
+          <t>
+It is possible for a node to receive multiple RAs with a mix of exclusive and
+non-exclusive PIOs and even non-zero and zero default router lifetimes. While
+it is not possible for a host (receiving node) to be sure it has received all
+the RA information available to it, hosts compliant with this specification
+SHOULD implement Packet-Loss Resiliency for Router Solicitations
+<xref target="RFC7559"/> so that the host continues to transmit Router
+Solicitations at least until an RA with a non-zero default router lifetime
+has been seen.
+          </t>
+        </section>
+      </section>
+
+      <section title="Link-local address behaviour">
         <t>
-When the host receives an RA-X the host knows that it is alone and in full
-control of the prefix, the A (Autonomous) bit is implied to be set and the
-host can choose any valid addresses it wants within the subnet.
+Routers announcing PIO-X RAs may record the link-local address of an RS as
+the next hop for the exclusive prefix. The host MUST continue to respond to
+Neighbor Solicitations for this address. Hosts that attempt to change their
+link-local address may experience a loss of connectivity.
         </t>
       </section>
 
-      <section title="Comparison with non-X-bit aware hosts">
+      <section title="Address and next hop router selection">
         <t>
-Link-local address behaviour.  Changing your address might result in a
-loss of connectivity.  Respond to Neighbor Solications for link-local
-or risk connectivity troubles.
+The receiving node SHOULD perform source address selection and next hop router
+selection in precisely the same manner it would have had the prefix not been
+designated as exclusive use for the host.
         </t>
       </section>
 
-      <section title="Renewal">
+      <section title="Additional guidance">
         <t>
-Because the router(s) may not necessarily have lower layer hints about the
-disappearance of node that received a PIO with the X bit, hosts SHOULD
-re-RS at 1/2, 3/4, and 7/8 of preferred lifetime.
-        </t>
-        <t>
-Hosts compliant with this document SHOULD implement resilient-rs:
-https://tools.ietf.org/html/rfc7559
-        </t>
-        <t>
-Nodes SHOULD prefer sending traffic sourced from an exclusive prefix to the
-set of routers from which it received that prefix. (cite baker draft)
-Subject to default router lifetimes and RIO information, etc.
-        </t>
-      <t>
-It is possible for a node to receive multiple PIOs from multiple routers
-with a mix of exclusive and non-exclusive prefix information.
-      </t>
-<t>
-The intent here is not to create sophisticated routing architectures can
-would be better handled by an actual routing protocol. As such:
-<list>
-        <t>
-A PIO-X receiving node SHOULD NOT generate ICMPv6 Redirects (reference) for any address
-within its exclusive prefix. Redirecting portions of exclusive prefixes to other on-link
-nodes is not a supported configuration.
-        </t>
-<t>
+The intent of networks that use PIO-X RAs is not to enable sophisticated
+routing architectures that could be far better handled by an actual routing
+protocol but rather to propagate a prefix's exclusive use information to
+enable the receiving node to make better use of the available addresses.
+As such:
+          <list>
+            <t>
+A PIO-X receiving node SHOULD NOT issue ICMPv6 Redirects
+(<xref target="RFC4861"/> section 4.5) for any address within its exclusive
+prefix via the link over which the PIO-X RA was received. Redirecting portions
+of exclusive prefixes to other "upstream" on-link nodes is not a supported
+configuration.
+            </t>
+            <t>
 A PIO-X receiving node SHOULD NOT transmit RAs with any subset of its exclusive
-prefixes via the same interface through which the exlucive prefix was learned.
-</t>
-</list>
-</t>
+prefixes via the same interface through which the exclusive prefix was learned.
+            </t>
+          </list>
+        </t>
       </section>
     </section>
 
     <section title="Router behaviour">
+      <t>
+XXX This section is still a disaster.
+      </t>
+
       <section title="foo">
         <t>
 When the host starts using the network connection it sends out an RS
@@ -457,7 +475,7 @@ receives the RA-X and starts using it.
 
       <section title="Implementation considerations">
         <t>
-Out of scope things that are with careful consideration include:
+Out of scope things that are with careful consideration include: XXX
         </t>
         <t>
 Routers SHOULD NOT announce the same prefix to two different nodes within
@@ -552,7 +570,7 @@ other nodes according to its capabilities and policies.
     </references>
 
 <!--
-    <section anchor="android-comparison" title="Comparison with Android implementation">
+    <section anchor="appendix" title="Appendix">
       <t>This becomes an Appendix.</t>
     </section>
 -->
