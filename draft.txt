@@ -87,20 +87,20 @@ Table of Contents
        5.2.1.  Duplicate Address Detection (DAD) . . . . . . . . . .   7
        5.2.2.  Router Solications (RSes) . . . . . . . . . . . . . .   7
      5.3.  Link-local address behaviour  . . . . . . . . . . . . . .   7
-     5.4.  Address and next hop router selection . . . . . . . . . .   7
+     5.4.  Address and next hop router selection . . . . . . . . . .   8
      5.5.  Additional guidance . . . . . . . . . . . . . . . . . . .   8
    6.  Router behaviour  . . . . . . . . . . . . . . . . . . . . . .   8
-     6.1.  foo . . . . . . . . . . . . . . . . . . . . . . . . . . .   8
-     6.2.  Preparations before sending RA-X  . . . . . . . . . . . .   8
+     6.1.  Detecting hosts to send PIO-X RAs to  . . . . . . . . . .   8
+     6.2.  Preparations before sending RA-X  . . . . . . . . . . . .   9
      6.3.  Implementation considerations . . . . . . . . . . . . . .   9
-     6.4.  Timers  . . . . . . . . . . . . . . . . . . . . . . . . .   9
-   7.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   9
-   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   9
-   9.  Security Considerations . . . . . . . . . . . . . . . . . . .   9
+     6.4.  Timers  . . . . . . . . . . . . . . . . . . . . . . . . .  10
+   7.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  10
+   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  10
+   9.  Security Considerations . . . . . . . . . . . . . . . . . . .  10
    10. References  . . . . . . . . . . . . . . . . . . . . . . . . .  10
      10.1.  Normative References . . . . . . . . . . . . . . . . . .  10
-     10.2.  Informative References . . . . . . . . . . . . . . . . .  10
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  10
+     10.2.  Informative References . . . . . . . . . . . . . . . . .  11
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  11
 
 
 
@@ -256,7 +256,7 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
            the encapsulating RA was received, but possibly other routers
            as well.  When not set, the receiving node MUST NOT make any
            assumptions of exclusive use of the specified Prefix, i.e.
-           processing is unchanged from previous standards behvaiour.
+           processing is unchanged from previous standards behaviour.
 
     Rsrvd1 Retains the same meaning as Reserved1 from
            rfc4861#section-4.6.2.
@@ -268,8 +268,8 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
 4.2.  Processing
 
    Nodes compliant with this specification, i.e. those that understand
-   the X bit, MUST ignore the actual values of the L and A bits and
-   instead intepret them as follows:
+   the X-bit, MUST (if the X-bit is set) ignore the actual values of the
+   L and A bits and instead intepret them as follows:
 
    o  interpret the L bit as if it were 0 (L=0)
 
@@ -284,7 +284,15 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
 
    The rationale for this is discussed further in Section 5.
 
-   It is RECOMMENDED that RAs containing a PIO with the X bit set also
+   If the node receives PIO-X RA over a link-layer medium that supports
+   unicast/multicast/broadcast link-layer addresses, it SHOULD verify
+   that the PIO-X RA destination L3 address is its own link-local L3
+   address.  If this L3 link-local address verification fails, the node
+   SHOULD ignore the PIO-X.  If the node receives PIO-X RA over a point-
+   to-point medium (such as PPP) it SHOULD ignore this verification and
+   process the PIO-X normally.
+
+   It is RECOMMENDED that RAs containing a PIO with the X-bit set also
    explicitly configure the PIO flags L=0 and A=1, for backward
    compatibility (use by non X-bit aware nodes).
 
@@ -322,14 +330,6 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
    Accordingly, the A bit can be interpreted as having been set, should
    the host choose to apply standard address generation schemes that
    require the bit to be set.  It is free to assign any address formed
-   from an exclusive prefix to any available interface; it is not
-   required to configure the address on the link over which the PIO-X RA
-   was received (i.e. it is under no obligation to form addresses such
-   that they would be classified as on-link (according to the definition
-   in rfc5942#section-4, item 1).
-
-
-
 
 
 
@@ -337,6 +337,12 @@ Kline & Abrahamsson     Expires February 17, 2017               [Page 6]
 
 Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
 
+
+   from an exclusive prefix to any available interface; it is not
+   required to configure the address on the link over which the PIO-X RA
+   was received (i.e. it is under no obligation to form addresses such
+   that they would be classified as on-link (according to the definition
+   in rfc5942#section-4, item 1).
 
 5.2.  Neighbor Discovery implications
 
@@ -377,12 +383,6 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
    attempt to change their link-local address may experience a loss of
    connectivity.
 
-5.4.  Address and next hop router selection
-
-   The receiving node SHOULD perform source address selection and next
-   hop router selection in precisely the same manner it would have had
-   the prefix not been designated as exclusive use for the host.
-
 
 
 
@@ -393,6 +393,12 @@ Kline & Abrahamsson     Expires February 17, 2017               [Page 7]
 
 Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
 
+
+5.4.  Address and next hop router selection
+
+   The receiving node SHOULD perform source address selection and next
+   hop router selection in precisely the same manner it would have had
+   the prefix not been designated as exclusive use for the host.
 
 5.5.  Additional guidance
 
@@ -414,33 +420,27 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
 
 6.  Router behaviour
 
-   XXX This section is still a disaster.
+   XXX This section needs a lot of work.
 
-6.1.  foo
+6.1.  Detecting hosts to send PIO-X RAs to
 
-   When the host starts using the network connection it sends out an RS
-   (Router Solicitation).  This is one way of detecting that a new
-   device.  If the router is configured to use RA-X, it can now prepare
-   itself to send the RA-X and then send it.
+   When the host starts using a network connection it normally sends out
+   an RS (Router Solicitation) packet.  This is one way for the router
+   to detect that a new host is connected to the network and detects its
+   link-local address.  If the router is configured to use PIO-X, it can
+   now perform necessary processing/configuration and then send the
+   PIO-X RA.
 
-   The RA-X packet MUST be sent using the unicast L2 address (if
-   applicable) and the L3 address of the host, learnt from the RS packet
-   received from the host.
+   The PIO-X RA packet SHOULD be sent using the destination unicast
+   link-layer address (if link-layer address medium) and the link-local
+   IPv6 address of the host.  These addresses can be learnt by means of
+   multiple mechanisms, for instance by receiving an RS from the host.
 
-   (***HOW TO HANDLE WHEN FOR INSTANCE 802.1X OR WIFI-AP-ATTACHMENT IS
-   USED TO DETECT A NEW HOST***)
-
-   R1  L2 signals for loss of host
-
-   R2  Consider not reassigning a prefix immediately given that some
-       hosts might reappear, attempt DNAv6, and it may be desirable to
-       re-PIO-X them with the same prefix.
-
-6.2.  Preparations before sending RA-X
-
-   When the router intends to send the RA-X, it MUST before sending the
-   RA packet install an IPv6 forwarding entry, assuring the prefix works
-   as soon as the host receives the RA-X and starts using it.
+   For some networks, the host information regarding link-layer and
+   link-local address might be available through other mechanisms.
+   Examples of this are PPP, 802.1x and 3GPP mobile networks.  In that
+   case this information MAY be used instead of relying on the host to
+   send RS.  It is however RECOMMENDED that these networks also provide
 
 
 
@@ -449,6 +449,34 @@ Kline & Abrahamsson     Expires February 17, 2017               [Page 8]
 
 Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
 
+
+   indication whether the host is no longer connected to the network so
+   that the router can invalidate the prefix binding.
+
+   R1  The router SHOULD keep track of what PIO-X prefix has been
+       assigned to each node.
+
+   R2  The router SHOULD keep the binding between prefix and link-local
+       address for 2x the advertised lifetime of the prefix.
+
+   R3  The binding SHOULD be considered refreshed each time the router
+       receives an RS from a link-local address and the router sends out
+       corresponding PIO-X RA.  This means a prefix isn't re-used for
+       another node for 2x the lifetime of the prefix advertised to the
+       first node.
+
+   R4  If the router is informed by some other mechanism (link-layer
+       indication for instance) that a node is no longer connected to
+       the link, it MAY immediately invalidate the prefix binding.
+       (DISCUSS: is this the correct approach?  Do we want to point to
+       some definition somewhere else?)
+
+6.2.  Preparations before sending RA-X
+
+   When the router intends to send PIO-X RA, it SHOULD before sending
+   the PIO-X RA, complete all necessary processing needed for the host
+   to start using the PIO-X prefix.  This is so that the host can start
+   using PIO-X immediately upon reception of the PIO-X RA.
 
 6.3.  Implementation considerations
 
@@ -466,6 +494,18 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
    node (or "host") send exclusive PIO originated traffic destined off-
    link through routers with non-zero default router lifetimes.
 
+
+
+
+
+
+
+
+Kline & Abrahamsson     Expires February 17, 2017               [Page 9]
+
+Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
+
+
 6.4.  Timers
 
    Routers SHOULD NOT announce the same prefix to two different nodes
@@ -479,11 +519,12 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
    The router MUST send new unicast RAs according to the times defined
    in RFC XXX section XYZ.  It detects that the host is still available
    either by wiki AP attachment, link being up, or by verifying host
-   availability by doing NUD.  Energy RFC reference, to balance out the
-   number of transmissions required for the host to maintain
-   connectivity given a certain percentage of packet loss with the
-   resource impact on the host of receiving and processing an RA (e.g.
-   if the receiving host has energy conservation objectives).
+   availability by doing NUD to the host link-local address.  Energy RFC
+   reference, to balance out the number of transmissions required for
+   the host to maintain connectivity given a certain percentage of
+   packet loss with the resource impact on the host of receiving and
+   processing an RA (e.g.  if the receiving host has energy conservation
+   objectives).
 
 7.  Acknowledgements
 
@@ -498,14 +539,6 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
    guarantees a unique /64 prefix to every attached host.  It only
    describes a mechanism to convey that topological reality, allowing
    the host to make certain optimizations as well as share the exclusive
-
-
-
-Kline & Abrahamsson     Expires February 17, 2017               [Page 9]
-
-Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
-
-
    prefix as it sees fit with other nodes according to its capabilities
    and policies.
 
@@ -517,6 +550,17 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
               <http://www.rfc-editor.org/info/rfc2119>.
+
+
+
+
+
+
+
+Kline & Abrahamsson     Expires February 17, 2017              [Page 10]
+
+Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
+
 
    [RFC4861]  Narten, T., Nordmark, E., Simpson, W., and H. Soliman,
               "Neighbor Discovery for IP version 6 (IPv6)", RFC 4861,
@@ -556,12 +600,6 @@ Authors' Addresses
    Email: ek@google.com
 
 
-
-Kline & Abrahamsson     Expires February 17, 2017              [Page 10]
-
-Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
-
-
    Mikael Abrahamsson
    T-Systems Nordic
    Kistagangen 26
@@ -569,44 +607,6 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
    SE
 
    Email: Mikael.Abrahamsson@t-systems.se
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

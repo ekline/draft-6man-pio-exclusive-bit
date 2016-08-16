@@ -271,7 +271,7 @@ routers as well.
 
 When not set, the receiving node MUST NOT make any assumptions of exclusive
 use of the specified Prefix, i.e. processing is unchanged from previous
-standards behvaiour.
+standards behaviour.
           </c>
 
           <c>&nbsp;</c><c>&nbsp;</c><c>&nbsp;</c>
@@ -291,9 +291,9 @@ Retains the same meaning as Reserved1 from rfc4861#section-4.6.2.
       </section>
       <section anchor="pio-x_processing" title="Processing">
 <t>
-Nodes compliant with this specification, i.e. those that understand the X bit,
-MUST ignore the actual values of the L and A bits and instead intepret them
-as follows:
+Nodes compliant with this specification, i.e. those that understand the X-bit,
+MUST (if the X-bit is set) ignore the actual values of the L and A bits and
+instead intepret them as follows:
 </t>
 
 <t>
@@ -305,7 +305,16 @@ The rationale for this is discussed further in <xref target="host_behaviour"/>.
 </t>
 
 <t>
-It is RECOMMENDED that RAs containing a PIO with the X bit set also explicitly
+If the node receives PIO-X RA over a link-layer medium that supports
+unicast/multicast/broadcast link-layer addresses, it SHOULD verify that the
+PIO-X RA destination L3 address is its own link-local L3 address.  If this
+L3 link-local address verification fails, the node SHOULD ignore the PIO-X.
+If the node receives PIO-X RA over a point-to-point medium (such as PPP) it
+SHOULD ignore this verification and process the PIO-X normally.
+</t>
+
+<t>
+It is RECOMMENDED that RAs containing a PIO with the X-bit set also explicitly
 configure the PIO flags L=0 and A=1, for backward compatibility
 (use by non X-bit aware nodes).
 </t>
@@ -433,33 +442,50 @@ prefixes via the same interface through which the exclusive prefix was learned.
 
     <section title="Router behaviour">
       <t>
-XXX This section is still a disaster.
+XXX This section needs a lot of work.
       </t>
 
-      <section title="foo">
+      <section title="Detecting hosts to send PIO-X RAs to">
         <t>
-When the host starts using the network connection it sends out an RS
-(Router Solicitation). This is one way of detecting that a new device. If
-the router is configured to use RA-X, it can now prepare itself to send the
-RA-X and then send it.
+When the host starts using a network connection it normally sends out an RS
+(Router Solicitation) packet. This is one way for the router to detect that
+a new host is connected to the network and detects its link-local address. If
+the router is configured to use PIO-X, it can now perform necessary
+processing/configuration and then send the PIO-X RA.
         </t>
         <t>
-The RA-X packet MUST be sent using the unicast L2 address (if applicable)
-and the L3 address of the host, learnt from the RS packet received from the
-host.
+The PIO-X RA packet SHOULD be sent using the destination unicast link-layer
+address (if link-layer address medium) and the link-local IPv6 address of
+the host. These addresses can be learnt by means of multiple mechanisms,
+for instance by receiving an RS from the host.
         </t>
         <t>
-(***HOW TO HANDLE WHEN FOR INSTANCE 802.1X OR WIFI-AP-ATTACHMENT IS USED TO DETECT A NEW HOST***)
+For some networks, the host information regarding link-layer and link-local
+address might be available through other mechanisms.  Examples of this are
+PPP, 802.1x and 3GPP mobile networks. In that case this information MAY be
+used instead of relying on the host to send RS. It is however RECOMMENDED
+that these networks also provide indication whether the host is no longer
+connected to the network so that the router can invalidate the prefix binding.
         </t>
         <t>
           <list counter="reqs" hangIndent="4" style="format R%d">
             <t>
-L2 signals for loss of host
+The router SHOULD keep track of what PIO-X prefix has been assigned to each node.
             </t>
             <t>
-Consider not reassigning a prefix immediately given that some hosts
-might reappear, attempt DNAv6, and it may be desirable to re-PIO-X
-them with the same prefix.
+The router SHOULD keep the binding between prefix and link-local address for
+2x the advertised lifetime of the prefix.
+            </t>
+            <t>
+The binding SHOULD be considered refreshed each time the router receives an RS
+from a link-local address and the router sends out corresponding PIO-X RA.
+This means a prefix isn't re-used for another node for 2x the lifetime of the
+prefix advertised to the first node.
+            </t>
+            <t>
+If the router is informed by some other mechanism (link-layer indication for instance) that a node is no longer connected
+to the link, it MAY immediately invalidate the prefix binding.
+(DISCUSS: is this the correct approach? Do we want to point to some definition somewhere else?)
             </t>
           </list>
         </t>
@@ -467,9 +493,9 @@ them with the same prefix.
 
       <section title="Preparations before sending RA-X">
         <t>
-When the router intends to send the RA-X, it MUST before sending the RA packet
-install an IPv6 forwarding entry, assuring the prefix works as soon as the host
-receives the RA-X and starts using it.
+When the router intends to send PIO-X RA, it SHOULD before sending the PIO-X RA, complete all necessary
+processing needed for the host to start using the PIO-X prefix.  This is so that the host can start using
+PIO-X immediately upon reception of the PIO-X RA.
         </t>
       </section>
 
@@ -506,7 +532,8 @@ PIO-X information for the same prefix with substantially different lifetimes.
         <t>
 The router MUST send new unicast RAs according to the times defined in RFC XXX
 section XYZ. It detects that the host is still available either by wiki AP
-attachment, link being up, or by verifying host availability by doing NUD.
+attachment, link being up, or by verifying host availability by doing NUD
+to the host link-local address.
 
 Energy RFC reference, to balance out the number of transmissions required for
 the host to maintain connectivity given a certain percentage of packet loss
