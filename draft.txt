@@ -10,7 +10,7 @@ Expires: February 21, 2017                               August 20, 2016
 
 
    IPv6 Router Advertisement Prefix Information Option Exclusive Bit
-                draft-kline-6man-pio-exclusive-bit-pre00
+              draft-pioxfolks-6man-pio-exclusive-bit-pre00
 
 Abstract
 
