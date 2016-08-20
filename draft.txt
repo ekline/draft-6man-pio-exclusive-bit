@@ -6,7 +6,7 @@ Internet Engineering Task Force                                 E. Kline
 Internet-Draft                                           Google Japan KK
 Updates: 4861 (if approved)                               M. Abrahamsson
 Intended status: Experimental                           T-Systems Nordic
-Expires: February 17, 2017                               August 16, 2016
+Expires: February 21, 2017                               August 20, 2016
 
 
    IPv6 Router Advertisement Prefix Information Option Exclusive Bit
@@ -41,7 +41,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on February 17, 2017.
+   This Internet-Draft will expire on February 21, 2017.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Kline & Abrahamsson     Expires February 17, 2017               [Page 1]
+Kline & Abrahamsson     Expires February 21, 2017               [Page 1]
 
 Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
 
@@ -90,15 +90,17 @@ Table of Contents
      5.4.  Address and next hop router selection . . . . . . . . . .   8
      5.5.  Additional guidance . . . . . . . . . . . . . . . . . . .   8
    6.  Router behaviour  . . . . . . . . . . . . . . . . . . . . . .   8
-     6.1.  Detecting hosts to send PIO-X RAs to  . . . . . . . . . .   8
-     6.2.  Preparations before sending RA-X  . . . . . . . . . . . .   9
-     6.3.  Implementation considerations . . . . . . . . . . . . . .   9
-     6.4.  Timers  . . . . . . . . . . . . . . . . . . . . . . . . .  10
+     6.1.  PIO-X RA destination address  . . . . . . . . . . . . . .   8
+     6.2.  Detecting hosts to send PIO-X RAs to  . . . . . . . . . .   9
+     6.3.  Binding table requirements  . . . . . . . . . . . . . . .   9
+     6.4.  Preparations before sending RA-X  . . . . . . . . . . . .   9
+     6.5.  Implementation considerations . . . . . . . . . . . . . .  10
+     6.6.  Timers  . . . . . . . . . . . . . . . . . . . . . . . . .  10
    7.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  10
    8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  10
    9.  Security Considerations . . . . . . . . . . . . . . . . . . .  10
-   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .  10
-     10.1.  Normative References . . . . . . . . . . . . . . . . . .  10
+   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .  11
+     10.1.  Normative References . . . . . . . . . . . . . . . . . .  11
      10.2.  Informative References . . . . . . . . . . . . . . . . .  11
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  11
 
@@ -107,9 +109,7 @@ Table of Contents
 
 
 
-
-
-Kline & Abrahamsson     Expires February 17, 2017               [Page 2]
+Kline & Abrahamsson     Expires February 21, 2017               [Page 2]
 
 Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
 
@@ -145,7 +145,8 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
    involve isolating a host so that the host is the only one in the L3
    subnet (prefix).
 
-   (list drafts/RFCs here)
+   (list drafts/RFCs here) draft-ietf-v6ops-unique-ipv6-prefix-per-host
+   draft-ietf-v6ops-host-addr-availability
 
    This document proposes an additional bit in the IPv6 Prefix
    Information Option (PIO) that tells the host that it's the only host
@@ -164,8 +165,7 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
 
 
 
-
-Kline & Abrahamsson     Expires February 17, 2017               [Page 3]
+Kline & Abrahamsson     Expires February 21, 2017               [Page 3]
 
 Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
 
@@ -221,7 +221,7 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
 
 
 
-Kline & Abrahamsson     Expires February 17, 2017               [Page 4]
+Kline & Abrahamsson     Expires February 21, 2017               [Page 4]
 
 Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
 
@@ -277,7 +277,7 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
 
 
 
-Kline & Abrahamsson     Expires February 17, 2017               [Page 5]
+Kline & Abrahamsson     Expires February 21, 2017               [Page 5]
 
 Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
 
@@ -288,9 +288,9 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
    unicast/multicast/broadcast link-layer addresses, it SHOULD verify
    that the PIO-X RA destination L3 address is its own link-local L3
    address.  If this L3 link-local address verification fails, the node
-   SHOULD ignore the PIO-X.  If the node receives PIO-X RA over a point-
-   to-point medium (such as PPP) it SHOULD ignore this verification and
-   process the PIO-X normally.
+   SHOULD ignore the PIO-X bit and continue processing as if X=0.  If
+   the node receives PIO-X RA over a point-to-point medium (such as PPP)
+   it SHOULD ignore this verification and process the PIO-X normally.
 
    It is RECOMMENDED that RAs containing a PIO with the X-bit set also
    explicitly configure the PIO flags L=0 and A=1, for backward
@@ -333,7 +333,7 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
 
 
 
-Kline & Abrahamsson     Expires February 17, 2017               [Page 6]
+Kline & Abrahamsson     Expires February 21, 2017               [Page 6]
 
 Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
 
@@ -389,7 +389,7 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
 
 
 
-Kline & Abrahamsson     Expires February 17, 2017               [Page 7]
+Kline & Abrahamsson     Expires February 21, 2017               [Page 7]
 
 Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
 
@@ -418,11 +418,39 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
       its exclusive prefixes via the same interface through which the
       exclusive prefix was learned.
 
+      The processing of timers and other behaviour regarding the PIO is
+      unchanged to what is specified in other IPv6 standardization
+      documents.
+
 6.  Router behaviour
 
    XXX This section needs a lot of work.
 
-6.1.  Detecting hosts to send PIO-X RAs to
+6.1.  PIO-X RA destination address
+
+   Since the host will not perform DAD for addresses within prefix
+   announced via PIO-X, it's very important that only a single host
+   receives the PIO-X RA.  Therefore, the router SHOULD only include
+   PIO-X in RAs that are sent using unicast RAs to destination unicast
+   link-layer address and IPv6 link-local unicast address for a specific
+   host.  For point-to-point media without link-layer addresses and
+   where there is only single host that will receive the PIO-X RA, the
+   router MAY send PIO-X RA with multicast destination IPv6 address and
+   keep track of binding table per point-to-point interface.
+
+
+
+
+
+
+
+
+Kline & Abrahamsson     Expires February 21, 2017               [Page 8]
+
+Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
+
+
+6.2.  Detecting hosts to send PIO-X RAs to
 
    When the host starts using a network connection it normally sends out
    an RS (Router Solicitation) packet.  This is one way for the router
@@ -431,27 +459,15 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
    now perform necessary processing/configuration and then send the
    PIO-X RA.
 
-   The PIO-X RA packet SHOULD be sent using the destination unicast
-   link-layer address (if link-layer address medium) and the link-local
-   IPv6 address of the host.  These addresses can be learnt by means of
-   multiple mechanisms, for instance by receiving an RS from the host.
-
    For some networks, the host information regarding link-layer and
-   link-local address might be available through other mechanisms.
+   link-local address might be available through other mechanism(s).
    Examples of this are PPP, 802.1x and 3GPP mobile networks.  In that
    case this information MAY be used instead of relying on the host to
    send RS.  It is however RECOMMENDED that these networks also provide
-
-
-
-
-Kline & Abrahamsson     Expires February 17, 2017               [Page 8]
-
-Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
-
-
    indication whether the host is no longer connected to the network so
    that the router can invalidate the prefix binding.
+
+6.3.  Binding table requirements
 
    R1  The router SHOULD keep track of what PIO-X prefix has been
        assigned to each node.
@@ -471,14 +487,26 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
        (DISCUSS: is this the correct approach?  Do we want to point to
        some definition somewhere else?)
 
-6.2.  Preparations before sending RA-X
+6.4.  Preparations before sending RA-X
 
    When the router intends to send PIO-X RA, it SHOULD before sending
    the PIO-X RA, complete all necessary processing needed for the host
-   to start using the PIO-X prefix.  This is so that the host can start
-   using PIO-X immediately upon reception of the PIO-X RA.
+   to start using the PIO-X prefix to communicate through the router to
+   other networks.  This is so that the host can start using PIO-X
+   immediately upon reception of the PIO-X RA.
 
-6.3.  Implementation considerations
+
+
+
+
+
+
+Kline & Abrahamsson     Expires February 21, 2017               [Page 9]
+
+Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
+
+
+6.5.  Implementation considerations
 
    Out of scope things that are with careful consideration include: XXX
 
@@ -494,19 +522,7 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
    node (or "host") send exclusive PIO originated traffic destined off-
    link through routers with non-zero default router lifetimes.
 
-
-
-
-
-
-
-
-Kline & Abrahamsson     Expires February 17, 2017               [Page 9]
-
-Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
-
-
-6.4.  Timers
+6.6.  Timers
 
    Routers SHOULD NOT announce the same prefix to two different nodes
    within the valid lifetime of the earlier of the two PIO
@@ -538,6 +554,14 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
    substantively different from existing behaviour on a link which
    guarantees a unique /64 prefix to every attached host.  It only
    describes a mechanism to convey that topological reality, allowing
+
+
+
+Kline & Abrahamsson     Expires February 21, 2017              [Page 10]
+
+Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
+
+
    the host to make certain optimizations as well as share the exclusive
    prefix as it sees fit with other nodes according to its capabilities
    and policies.
@@ -550,17 +574,6 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
               <http://www.rfc-editor.org/info/rfc2119>.
-
-
-
-
-
-
-
-Kline & Abrahamsson     Expires February 17, 2017              [Page 10]
-
-Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
-
 
    [RFC4861]  Narten, T., Nordmark, E., Simpson, W., and H. Soliman,
               "Neighbor Discovery for IP version 6 (IPv6)", RFC 4861,
@@ -590,6 +603,21 @@ Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
 
 Authors' Addresses
 
+
+
+
+
+
+
+
+
+
+
+Kline & Abrahamsson     Expires February 21, 2017              [Page 11]
+
+Internet-Draft   Prefix Information Option Exclusive Bit     August 2016
+
+
    Erik Kline
    Google Japan KK
    6-10-1 Roppongi
@@ -613,4 +641,32 @@ Authors' Addresses
 
 
 
-Kline & Abrahamsson     Expires February 17, 2017              [Page 11]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Kline & Abrahamsson     Expires February 21, 2017              [Page 12]

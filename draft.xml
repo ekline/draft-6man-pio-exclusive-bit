@@ -166,6 +166,8 @@ host is the only one in the L3 subnet (prefix).
 
       <t>
 (list drafts/RFCs here)
+draft-ietf-v6ops-unique-ipv6-prefix-per-host
+draft-ietf-v6ops-host-addr-availability
       </t>
 
       <t>
@@ -308,9 +310,10 @@ The rationale for this is discussed further in <xref target="host_behaviour"/>.
 If the node receives PIO-X RA over a link-layer medium that supports
 unicast/multicast/broadcast link-layer addresses, it SHOULD verify that the
 PIO-X RA destination L3 address is its own link-local L3 address.  If this
-L3 link-local address verification fails, the node SHOULD ignore the PIO-X.
-If the node receives PIO-X RA over a point-to-point medium (such as PPP) it
-SHOULD ignore this verification and process the PIO-X normally.
+L3 link-local address verification fails, the node SHOULD ignore the PIO-X bit
+and continue processing as if X=0. If the node receives PIO-X RA over a
+point-to-point medium (such as PPP) it SHOULD ignore this verification and
+process the PIO-X normally.
 </t>
 
 <t>
@@ -435,6 +438,10 @@ configuration.
 A PIO-X receiving node SHOULD NOT transmit RAs with any subset of its exclusive
 prefixes via the same interface through which the exclusive prefix was learned.
             </t>
+            <t>
+The processing of timers and other behaviour regarding the PIO is unchanged to
+what is specified in other IPv6 standardization documents.
+            </t>
           </list>
         </t>
       </section>
@@ -445,6 +452,19 @@ prefixes via the same interface through which the exclusive prefix was learned.
 XXX This section needs a lot of work.
       </t>
 
+      <section title="PIO-X RA destination address">
+        <t>
+Since the host will not perform DAD for addresses within prefix announced via
+PIO-X, it's very important that only a single host receives the PIO-X RA.
+Therefore, the router SHOULD only include PIO-X in RAs that are sent
+using unicast RAs to destination unicast link-layer address and IPv6 link-local
+unicast address for a specific host. For point-to-point media
+without link-layer addresses and where there is only single host that will
+receive the PIO-X RA, the router MAY send PIO-X RA with multicast destination
+IPv6 address and keep track of binding table per point-to-point interface.
+        </t>
+      </section>
+
       <section title="Detecting hosts to send PIO-X RAs to">
         <t>
 When the host starts using a network connection it normally sends out an RS
@@ -454,19 +474,15 @@ the router is configured to use PIO-X, it can now perform necessary
 processing/configuration and then send the PIO-X RA.
         </t>
         <t>
-The PIO-X RA packet SHOULD be sent using the destination unicast link-layer
-address (if link-layer address medium) and the link-local IPv6 address of
-the host. These addresses can be learnt by means of multiple mechanisms,
-for instance by receiving an RS from the host.
-        </t>
-        <t>
 For some networks, the host information regarding link-layer and link-local
-address might be available through other mechanisms.  Examples of this are
+address might be available through other mechanism(s).  Examples of this are
 PPP, 802.1x and 3GPP mobile networks. In that case this information MAY be
 used instead of relying on the host to send RS. It is however RECOMMENDED
 that these networks also provide indication whether the host is no longer
 connected to the network so that the router can invalidate the prefix binding.
         </t>
+      </section>
+      <section title="Binding table requirements">
         <t>
           <list counter="reqs" hangIndent="4" style="format R%d">
             <t>
@@ -483,8 +499,9 @@ This means a prefix isn't re-used for another node for 2x the lifetime of the
 prefix advertised to the first node.
             </t>
             <t>
-If the router is informed by some other mechanism (link-layer indication for instance) that a node is no longer connected
-to the link, it MAY immediately invalidate the prefix binding.
+If the router is informed by some other mechanism (link-layer indication for
+instance) that a node is no longer connected to the link, it MAY immediately
+invalidate the prefix binding.
 (DISCUSS: is this the correct approach? Do we want to point to some definition somewhere else?)
             </t>
           </list>
@@ -493,9 +510,10 @@ to the link, it MAY immediately invalidate the prefix binding.
 
       <section title="Preparations before sending RA-X">
         <t>
-When the router intends to send PIO-X RA, it SHOULD before sending the PIO-X RA, complete all necessary
-processing needed for the host to start using the PIO-X prefix.  This is so that the host can start using
-PIO-X immediately upon reception of the PIO-X RA.
+When the router intends to send PIO-X RA, it SHOULD before sending the PIO-X RA,
+complete all necessary processing needed for the host to start using the PIO-X
+prefix to communicate through the router to other networks. This is so that the
+host can start using PIO-X immediately upon reception of the PIO-X RA.
         </t>
       </section>
 
