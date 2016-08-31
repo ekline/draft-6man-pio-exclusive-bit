@@ -1,0 +1,653 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!-- This template is for creating an Internet Draft using xml2rfc,
+     which is available here: http://xml.resource.org. -->
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+  <!ENTITY RFC1122
+    SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.1122.xml">
+  <!ENTITY RFC1918
+    SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.1918.xml">
+  <!ENTITY RFC2119
+    SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+  <!ENTITY RFC3493
+    SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3493.xml">
+  <!ENTITY RFC3633
+    SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3633.xml">
+  <!ENTITY RFC3879
+    SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3879.xml">
+  <!ENTITY RFC4191
+    SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4191.xml">
+  <!ENTITY RFC4861
+    SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4861.xml">
+  <!ENTITY RFC4862
+    SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4862.xml">
+  <!ENTITY RFC6418
+    SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6418.xml">
+  <!ENTITY RFC7559
+    SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7559.xml">
+  <!ENTITY RFC7934
+    SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7934.xml">
+]>
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<!-- used by XSLT processors -->
+<!-- For a complete list and description of processing instructions (PIs),
+     please see http://xml.resource.org/authoring/README.html. -->
+<!-- Below are generally applicable Processing Instructions (PIs) that most I-Ds might want to use.
+     (Here they are set differently than their defaults in xml2rfc v1.32) -->
+<?rfc strict="yes" ?>
+<!-- give errors regarding ID-nits and DTD validation -->
+<!-- control the table of contents (ToC) -->
+<?rfc toc="yes"?>
+<!-- generate a ToC -->
+<?rfc tocdepth="4"?>
+<!-- the number of levels of subsections in ToC. default: 3 -->
+<!-- control references -->
+<?rfc symrefs="yes"?>
+<!-- use symbolic references tags, i.e, [RFC2119] instead of [1] -->
+<?rfc sortrefs="yes" ?>
+<!-- sort the reference entries alphabetically -->
+<!-- control vertical white space
+     (using these PIs as follows is recommended by the RFC Editor) -->
+<?rfc compact="yes" ?>
+<!-- do not start each main section on a new page -->
+<?rfc subcompact="no" ?>
+<!-- keep one blank line between list items -->
+<!-- end of list of popular I-D processing instructions -->
+<rfc category="exp"
+     ipr="trust200902"
+     updates="4861"
+     docName="draft-pioxfolks-6man-pio-exclusive-bit-00">
+
+  <!-- category values: std, bcp, info, exp, and historic
+     ipr values: full3667, noModification3667, noDerivatives3667
+     you can add the attributes updates="NNNN" and obsoletes="NNNN"
+     they will automatically be output with "(if approved)" -->
+
+
+  <front>
+    <title abbrev="IPv6 RA PIO Exclusive Bit"
+      >IPv6 Router Advertisement Prefix Information Option Exclusive Bit</title>
+
+    <author fullname="Erik Kline"
+            initials="E." surname="Kline">
+      <organization>Google Japan KK</organization>
+      <address>
+        <postal>
+          <street>6-10-1 Roppongi</street>
+          <street>Mori Tower, 44th floor</street>
+          <city>Minato</city>
+          <region>Tokyo</region>
+          <code>106-6126</code>
+          <country>JP</country>
+        </postal>
+        <phone></phone>
+        <email>ek@google.com</email>
+      </address>
+    </author>
+
+    <author fullname="Mikael Abrahamsson"
+            initials="M." surname="Abrahamsson">
+      <organization>T-Systems Nordic</organization>
+      <address>
+        <postal>
+          <street>Kistagangen 26</street>
+          <city>Stockholm</city>
+          <country>SE</country>
+        </postal>
+        <email>Mikael.Abrahamsson@t-systems.se</email>
+      </address>
+    </author>
+
+    <date/>
+
+    <!-- Meta-data Declarations -->
+
+    <area>General</area>
+
+    <workgroup>Internet Engineering Task Force</workgroup>
+
+    <!-- WG name at the upperleft corner of the doc,
+         IETF is fine for individual submissions.
+	 If this element is not present, the default is "Network Working Group",
+         which is used by the RFC Editor as a nod to the history of the IETF. -->
+
+    <keyword>ipv6</keyword>
+    <keyword>6man</keyword>
+    <keyword>router</keyword>
+    <keyword>advertisement</keyword>
+    <keyword>prefix</keyword>
+    <keyword>information</keyword>
+    <keyword>option</keyword>
+    <keyword>exclusive</keyword>
+
+    <abstract>
+      <t>
+This document defines a new control bit in the IPv6 RA PIO flags octet
+that indicates that the node receiving this RA is the exclusive receiver of
+all traffic destined to any address with that prefix.
+      </t>
+      <t>
+Termed the eXclusive bit (or "X bit"), nodes that recognize this can perform
+some traffic-saving optimizations (e.g. disable ND and DAD for addresses
+within this prefix) and more immediately pursue the benefits of being provided
+multiple addresses (vis. <xref target="RFC7934"/> section 3). Additionally,
+network infrastructure nodes (routers, switches) can benefit by minimizing the
+number of (link layer, IP) address pairs required to offer network connectivity
+(vis. <xref target="RFC7934"/> section 9.3).
+      </t>
+      <t>
+Use of the X bit is backward compatible with existing IPv6 standards compliant
+implementations.
+      </t>
+    </abstract>
+  </front>
+
+
+  <middle>
+    <section title="Introduction">
+      <t>
+This document defines a new control bit in the Internet Protocol version 6
+(IPv6) Router Advertisement (RA) Prefix Information Option (PIO) flags octet
+that indicates that the node receiving this RA is the exclusive receiver of
+all traffic destined to any address with that prefix. Subject to the lifetime
+constraints within the PIO, the receiving node effectively has exclusive
+use of the prefix, and will be the next hop destination for the sending router,
+and possibly other routers, for all traffic destined toward the prefix.
+      </t>
+      <t>
+Termed the eXclusive bit (or "X bit"), nodes that recognize this can perform
+some traffic-saving optimizations (e.g. disable Neighbor Discovery (ND) and
+Duplicate Address Detection (DAD) for addresses within this prefix) and more
+immediately pursue the benefits of being provided multiple addresses
+(vis. <xref target="RFC7934"/> section 3).
+      </t>
+      <t>
+Additionally, network infrastructure nodes (routers, switches) can benefit by
+minimizing the number of (link layer, IP) address pairs required to offer
+network connectivity (vis. <xref target="RFC7934"/> section 9.3). A router,
+for example, need not create any (link layer, IP) address pair entries for
+and IP address within a proffered exclusive-use prefix--it can reliably forward
+all traffic to the network node to which it advertised the prefix. This solves
+a potential link layer state exhaustion problem, i.e excessive number of
+(link layer, IP address pairs, using IP layer forwarding.
+      </t>
+      <t>
+Use of the X bit is backward compatible with existing IPv6 standards compliant
+implementations. <xref target="RFC4861"/>-compliant nodes that do not
+understand the X bit are not negatively impacted.  They must ignore it, and
+can process the PIO under existing standards, making use of the information
+exactly as if the X bit were not set.
+      </t>
+    </section>
+
+    <section anchor="motivation" title="Motivation">
+      <t>
+There are several initiatives that propose network side practices that provide
+customer isolation, enhanced operational scalability, power efficiency, security
+and other benefits in IPv6 network deployments. Some of these involve isolating
+a host (or RA accepting client node) so that the host is the only node to
+receive a specific prefix, including
+<list style="symbols">
+  <t>
+DHCPv6 Prefix Delegation to hosts
+(<eref target="https://tools.ietf.org/html/draft-templin-v6ops-pdhost"/>), and
+  </t>
+  <t>
+advertising a unique prefix per host via unique RAs.
+(<eref target="https://tools.ietf.org/html/draft-ietf-v6ops-unique-ipv6-prefix-per-host"/>).
+  </t>
+</list>
+      </t>
+
+      <t>
+Some architectures further isolate the host layers below IPv6, for improved
+client node security.  Regardless of the specific level of isolation, the host
+can best make optimizations and choices about its use of a prefix exclusive to
+if the host can be informed of the exclusivity.  In the case of a DHCPv6 Prefix
+Delegation the prefix can be assumed to be of exclusive use by the requesting
+node (in accordance with the model in <xref target="RFC3633"/>).
+This memo documents an additional bit in the IPv6 Prefix Information Option
+(PIO) that makes all of this explicit to receiving node.
+      </t>
+    </section>
+
+  <section title="Terminology">
+      <section title="Requirements Language">
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+        "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+        document are to be interpreted as described in <xref
+        target="RFC2119">RFC 2119</xref>.</t>
+      </section>
+
+    <section title="Abbreviations">
+        <t>
+Throughout this document the following terminology is used purely for the
+sake of brevity.
+        </t>
+
+        <section title="PIO-X">
+          <t>
+The term "PIO-X" is used to refer to a Prefix Information Option (PIO)
+that has the X bit set.
+          </t>
+        </section>
+
+        <section title="PIO-X RA">
+          <t>
+The phrase "PIO-X RA" is used to refer to an IPv6 Router Advertisement (RA)
+that contains one or more PIO-X entries (the same RA may also contain one or
+more PIOs without the X bit set).
+          </t>
+        </section>
+
+        <section title="Host">
+          <t>
+The term "host" may be used interchangably throughout this document to mean
+a network node receiving and processing an RA. The receiving node may itself
+be a router, or may temporarily become one by routing all or a portion of an
+exclusive use prefix.
+          </t>
+        </section>
+      </section>
+    </section>
+
+    <section title="Updated Prefix Information Option">
+      <t>
+This document updates the Prefix Information Option specification in
+RFC 4861, section 4.6.2 with the definition of a bit from the former Reserved1
+field as follows.
+      </t>
+
+      <section title="Updated format description">
+        <figure align="center">
+          <artwork align="left"><![CDATA[
+       0                   1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |     Type      |    Length     | Prefix Length |L|A|X|  Rsrvd1 |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                         Valid Lifetime                        |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                       Preferred Lifetime                      |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                           Reserved2                           |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                                                               |
+      +                                                               +
+      |                                                               |
+      +                            Prefix                             +
+      |                                                               |
+      +                                                               +
+      |                                                               |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                                ]]>
+          </artwork>
+        </figure>
+
+        <texttable align="left" style="none">
+          <preamble>Fields:</preamble>
+          <ttcol></ttcol>
+          <ttcol></ttcol>
+          <ttcol></ttcol>
+          <c>X</c>
+          <c>&nbsp;</c>
+          <c>
+The eXclusive use indicator flag, defined by this document. When set,
+the receiving node can be assured that all traffic destined to any address
+within the specified Prefix will forwarded to itself by, at a minimum, the
+router from which the encapsulating RA was received, but possibly other
+routers as well.
+
+When not set, the receiving node MUST NOT make any assumptions of exclusive
+use of the specified Prefix, i.e. processing is unchanged from previous
+standards behaviour.
+          </c>
+
+          <c>&nbsp;</c><c>&nbsp;</c><c>&nbsp;</c>
+
+          <c>Rsrvd1</c>
+          <c>&nbsp;</c>
+          <c>
+Retains the same meaning as Reserved1 from rfc4861#section-4.6.2.
+          </c>
+
+          <c>&nbsp;</c><c>&nbsp;</c><c>&nbsp;</c>
+
+          <c>All other fields</c>
+          <c>&nbsp;</c>
+          <c>Retain their same meaning rfc4861#section-4.6.2.</c>
+        </texttable>
+      </section>
+      <section anchor="pio-x_processing" title="Processing">
+<t>
+Nodes compliant with this specification, i.e. those that understand the X-bit,
+MUST (if the X-bit is set) ignore the actual values of the L and A bits and
+instead intepret them as follows:
+</t>
+
+<t>
+<list style="symbols">
+  <t>interpret the L bit as if it were 0 (L=0)</t>
+  <t>interpret the A bit as it it were 1 (A=1)</t>
+</list>
+The rationale for this is discussed further in <xref target="host_behaviour"/>.
+</t>
+
+<t>
+If the node receives PIO-X RA over a link-layer medium that supports
+unicast/multicast/broadcast link-layer addresses, it SHOULD verify that the
+PIO-X RA destination L3 address is its own link-local L3 address.  If this
+L3 link-local address verification fails, the node SHOULD ignore the PIO-X bit
+and continue processing as if X=0. If the node receives PIO-X RA over a
+point-to-point medium (such as PPP) it SHOULD ignore this verification and
+process the PIO-X normally.
+</t>
+
+<t>
+It is RECOMMENDED that RAs containing a PIO with the X-bit set also explicitly
+configure the PIO flags L=0 and A=1, for backward compatibility
+(use by non X-bit aware nodes).
+</t>
+      </section>
+    </section>
+
+    <section anchor="host_behaviour" title="Host behaviour">
+      <section title="PIO-X processing">
+        <t>
+A receiving node compliant with this document processes a PIO entry with
+the X bit set following the requirements in previous standards documents
+(chiefly rfc4861#section-6.3.4) with one key difference: the actual values
+of the L bit and the A bit are ignored. Instead, the receiving node MUST
+interpret the L and A bits according to <xref target="pio-x_processing"/>.
+        </t>
+
+        <section title="PIO L bit">
+          <t>
+Because a PIO-X aware node will know that it has exclusive use of a prefix
+with non-zero valid lifetime, the prefix itself cannot be considered to be
+on-link with respect to the link on which the PIO-X RA was received.
+          </t>
+          <t>
+Note that a given address from within the prefix may be considered on-link
+according to the definition in <eref target="RFC5942"/> section-4, item 1,
+should the receiving node chose to configure that address on said link, but
+this is in no way synonymous with the entire prefix being considered on-link.
+          </t>
+        </section>
+
+        <section title="PIO A bit">
+          <t>
+Because a PIO-X aware node will know that it has exclusive use of a prefix
+with non-zero valid lifetime, autoconfiguration of addresses according to
+any desired scheme, e.g. <eref target="RFC4862"/>, <eref target="RFC7217"/>,
+et cetera, is inherent in the setting of the X bit.
+          </t>
+          <t>
+Accordingly, the A bit can be interpreted as having been set, should the host
+choose to apply standard address generation schemes that require the bit to
+be set. It is free to assign any address formed from an exclusive prefix to any
+available interface; it is not required to configure the address on the link
+over which the PIO-X RA was received (i.e. it is under no obligation to form
+addresses such that they would be classified as on-link (according to the
+definition in rfc5942#section-4, item 1).
+          </t>
+        </section>
+      </section>
+
+      <section title="Neighbor Discovery implications">
+        <section title="Duplicate Address Detection (DAD)">
+          <t>
+Whatever use the host makes of the exclusive prefix during its valid lifetime,
+it SHOULD NOT perform Duplicate Address Detection (DAD) on any address it
+configures from within the prefix if that address is configured on either the
+interface over which the PIO-X RA was received or on a loopback interface.
+Note that this does not absolve the host from performing DAD in all scenarios;
+if, for example, the host uses the prefix for 64sharing it MUST at a minimum
+defend via DAD any addresses it has configured for itself as documented in
+Requirement 2 of RFC7278 section 3.
+          </t>
+        </section>
+
+        <section title="Router Solications (RSes)">
+          <t>
+Routers announcing PIO-X RAs may record the link-local address of an RS as
+the next hop for the exclusive prefix. As such, hosts compliant with this
+specification SHOULD issue Router Solications from a link-local address; they
+SHOULD NOT use the unspecified address (::) when sending RSes.
+          </t>
+
+          <t>
+It is possible for a node to receive multiple RAs with a mix of exclusive and
+non-exclusive PIOs and even non-zero and zero default router lifetimes. While
+it is not possible for a host (receiving node) to be sure it has received all
+the RA information available to it, hosts compliant with this specification
+SHOULD implement Packet-Loss Resiliency for Router Solicitations
+<xref target="RFC7559"/> so that the host continues to transmit Router
+Solicitations at least until an RA with a non-zero default router lifetime
+has been seen.
+          </t>
+        </section>
+      </section>
+
+      <section title="Link-local address behaviour">
+        <t>
+Routers announcing PIO-X RAs may record the link-local address of an RS as
+the next hop for the exclusive prefix. The host MUST continue to respond to
+Neighbor Solicitations for this address. Hosts that attempt to change their
+link-local address may experience a loss of connectivity.
+        </t>
+      </section>
+
+      <section title="Address and next hop router selection">
+        <t>
+The receiving node SHOULD perform source address selection and next hop router
+selection in precisely the same manner it would have had the prefix not been
+designated as exclusive use for the host.
+        </t>
+      </section>
+
+      <section title="Additional guidance">
+        <t>
+The intent of networks that use PIO-X RAs is not to enable sophisticated
+routing architectures that could be far better handled by an actual routing
+protocol but rather to propagate a prefix's exclusive use information to
+enable the receiving node to make better use of the available addresses.
+As such:
+          <list>
+            <t>
+A PIO-X receiving node SHOULD NOT issue ICMPv6 Redirects
+(<xref target="RFC4861"/> section 4.5) for any address within its exclusive
+prefix via the link over which the PIO-X RA was received. Redirecting portions
+of exclusive prefixes to other "upstream" on-link nodes is not a supported
+configuration.
+            </t>
+            <t>
+A PIO-X receiving node SHOULD NOT transmit RAs with any subset of its exclusive
+prefixes via the same interface through which the exclusive prefix was learned.
+            </t>
+            <t>
+The processing of timers and other behaviour regarding the PIO is unchanged to
+what is specified in other IPv6 standardization documents.
+            </t>
+          </list>
+        </t>
+      </section>
+    </section>
+
+    <section title="Router behaviour">
+      <t>
+XXX This section needs a lot of work.
+      </t>
+
+      <section title="PIO-X RA destination address">
+        <t>
+Since the host will not perform DAD for addresses within prefix announced via
+PIO-X, it's very important that only a single host receives the PIO-X RA.
+Therefore, the router SHOULD only include PIO-X in RAs that are sent
+using unicast RAs to destination unicast link-layer address and IPv6 link-local
+unicast address for a specific host. For point-to-point media
+without link-layer addresses or where there is guaranteed to only be single
+host that will receive the PIO-X RA (e.g. as enforced by link layer mechanisms),
+the router MAY send PIO-X RA with multicast destination IPv6 address. Under all
+circumstances the router MUST keep track of binding table per point-to-point interface.
+        </t>
+      </section>
+
+      <section title="Detecting hosts to send PIO-X RAs to">
+        <t>
+When the host starts using a network connection it normally sends out an RS
+(Router Solicitation) packet. This is one way for the router to detect that
+a new host is connected to the network and detects its link-local address. If
+the router is configured to use PIO-X, it can now perform necessary
+processing/configuration and then send the PIO-X RA.
+        </t>
+        <t>
+For some networks, the host information regarding link-layer and link-local
+address might be available through other mechanism(s).  Examples of this are
+PPP, 802.1x and 3GPP mobile networks. In that case this information MAY be
+used instead of relying on the host to send RS. It is however RECOMMENDED
+that these networks also provide indication whether the host is no longer
+connected to the network so that the router can invalidate the prefix binding.
+        </t>
+      </section>
+
+      <section title="Binding table requirements">
+        <t>
+          <list counter="reqs" hangIndent="4" style="format R%d">
+            <t>
+The router SHOULD keep track of what PIO-X prefix has been assigned to each node.
+            </t>
+            <t>
+The router SHOULD keep the binding between prefix and link-local address for
+2x the advertised valid lifetime of the prefix.
+            </t>
+            <t>
+The binding SHOULD be considered refreshed each time the router receives an RS
+from a link-local address and the router sends out corresponding PIO-X RA.
+This means a prefix isn't re-used for another node for 2x the lifetime of the
+prefix advertised to the first node.
+            </t>
+            <t>
+If the router is informed by some other mechanism (link-layer indication for
+instance) that a node is no longer connected to the link, it MAY immediately
+invalidate the prefix binding.
+(DISCUSS: is this the correct approach? Do we want to point to some definition somewhere else?)
+            </t>
+          </list>
+        </t>
+      </section>
+
+      <section title="Preparations before sending RA-X">
+        <t>
+When the router intends to send PIO-X RA, it SHOULD before sending the PIO-X RA,
+complete all necessary processing needed for the host to start using the PIO-X
+prefix to communicate through the router to other networks. This is so that the
+host can start using PIO-X immediately upon reception of the PIO-X RA.
+        </t>
+      </section>
+
+      <section title="Implementation considerations">
+        <t>
+Out of scope things that are worth careful consideration include: XXX
+        </t>
+        <t>
+Routers SHOULD NOT announce the same prefix to two different nodes within
+the valid lifetime of the earlier of the two PIO-X announcements.
+        </t>
+        <t>
+A link may operate in a mode where routers announce RAs to all nodes,
+possibly with non-exclusive PIO data, and non-zero default router lifetimes.
+Separately, one or more other nodes on the link may announce exclusive PIO
+information to nodes along with zero default router lifetimes.
+Except in the presence of a non-expired more specific route, e.g. learning from
+an <eref target="RFC4191"/> Route Information Option (RIO), the receiving
+node should send exclusive use prefix originated or forwarded traffic destined
+off-link through routers with non-zero default router lifetimes.
+        </t>
+        <t>
+        </t>
+      </section>
+
+      <section title="Timers">
+        <t>
+Routers SHOULD NOT announce the same prefix to two different nodes within
+the valid lifetime of the earlier of the two PIO announcements.
+        </t>
+        <t>
+It is a configuration error for more than one router on a link to announce
+PIO-X information for the same prefix with substantially different lifetimes.
+        </t>
+        <t>
+The router MUST send new unicast RAs according to the times defined in RFC XXX
+section XYZ. It detects that the host is still available either by wiki AP
+attachment, link being up, or by verifying host availability by doing NUD
+to the host link-local address.
+
+Energy RFC reference, to balance out the number of transmissions required for
+the host to maintain connectivity given a certain percentage of packet loss
+with the resource impact on the host of receiving and processing an RA (e.g.
+if the receiving host has energy conservation objectives).
+        </t>
+      </section>
+    </section>
+
+    <!-- Possibly a 'Contributors' section ... -->
+    <section anchor="acks" title="Acknowledgements">
+      <t>
+      </t>
+      <t>
+      </t>
+    </section>
+
+    <section anchor="IANA" title="IANA Considerations">
+      <t>
+This memo contains no requests of IANA.
+      </t>
+    </section>
+
+    <section anchor="Security" title="Security Considerations">
+      <t>
+This document fundamentally introduces no new protocol or behaviour
+substantively different from existing behaviour on a link which guarantees
+a unique /64 prefix to every attached host. It only describes a mechanism
+to convey that topological reality, allowing the host to make certain
+optimizations as well as share the exclusive prefix as it sees fit with
+other nodes according to its capabilities and policies.
+      </t>
+    </section>
+  </middle>
+
+
+  <back>
+    <!-- References split into informative and normative -->
+
+    <!-- There are 2 ways to insert reference entries from the citation libraries:
+     1. define an ENTITY at the top, and use "ampersand character"RFC2629; here (as shown)
+     2. simply use a PI "less than character"?rfc include="reference.RFC.2119.xml"?> here
+        (for I-Ds: include="reference.I-D.narten-iana-considerations-rfc2434bis.xml")
+
+     Both are cited textually in the same manner: by using xref elements.
+     If you use the PI option, xml2rfc will, by default, try to find included files in the same
+     directory as the including file. You can also define the XML_LIBRARY environment variable
+     with a value containing a set of directories to search.  These can be either in the local
+     filing system or remote ones accessed by http (http://domain/dir/... ).-->
+
+    <references title="Normative References">
+      &RFC2119;
+      &RFC4861;
+      &RFC4862;
+      &RFC7559;
+    </references>
+
+    <references title="Informative References">
+      &RFC3633;
+      &RFC4191;
+      &RFC7934;
+    </references>
+
+<!--
+    <section anchor="appendix" title="Appendix">
+      <t>This becomes an Appendix.</t>
+    </section>
+-->
+  </back>
+</rfc>
