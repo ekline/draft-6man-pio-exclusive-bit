@@ -6,7 +6,7 @@ Internet Engineering Task Force                                 E. Kline
 Internet-Draft                                           Google Japan KK
 Updates: 4861 (if approved)                               M. Abrahamsson
 Intended status: Experimental                           T-Systems Nordic
-Expires: March 4, 2017                                   August 31, 2016
+Expires: March 17, 2017                               September 13, 2016
 
 
    IPv6 Router Advertisement Prefix Information Option Exclusive Bit
@@ -23,7 +23,7 @@ Abstract
    for addresses within this prefix) and more immediately pursue the
    benefits of being provided multiple addresses (vis.  [RFC7934]
    section 3).  Additionally, network infrastructure nodes (routers,
-   switches) can benefit by minimizing the number of (link layer, IP)
+   switches) can benefit by minimizing the number of {link layer, IP}
    address pairs required to offer network connectivity (vis.  [RFC7934]
    section 9.3).
 
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on March 4, 2017.
+   This Internet-Draft will expire on March 17, 2017.
 
 
 
@@ -53,9 +53,9 @@ Status of This Memo
 
 
 
-Kline & Abrahamsson       Expires March 4, 2017                 [Page 1]
+Kline & Abrahamsson      Expires March 17, 2017                 [Page 1]
 
-Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
+Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
 
 Copyright Notice
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Kline & Abrahamsson       Expires March 4, 2017                 [Page 2]
+Kline & Abrahamsson      Expires March 17, 2017                 [Page 2]
 
-Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
+Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
 
    10. References  . . . . . . . . . . . . . . . . . . . . . . . . .  11
@@ -137,14 +137,14 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
    provided multiple addresses (vis.  [RFC7934] section 3).
 
    Additionally, network infrastructure nodes (routers, switches) can
-   benefit by minimizing the number of (link layer, IP) address pairs
+   benefit by minimizing the number of {link layer, IP} address pairs
    required to offer network connectivity (vis.  [RFC7934] section 9.3).
-   A router, for example, need not create any (link layer, IP) address
-   pair entries for and IP address within a proffered exclusive-use
-   prefix--it can reliably forward all traffic to the network node to
-   which it advertised the prefix.  This solves a potential link layer
-   state exhaustion problem, i.e excessive number of (link layer, IP
-   address pairs, using IP layer forwarding.
+   A router, for example, need not create any {link layer, IP} address
+   pair entries for IP address within a proffered exclusive-use prefix--
+   it can reliably forward all traffic to the network node to which it
+   advertised the prefix.  This solves a potential link layer state
+   exhaustion problem, i.e excessive number of {link layer, IP address
+   pairs}, using IP layer forwarding.
 
    Use of the X bit is backward compatible with existing IPv6 standards
    compliant implementations.  [RFC4861]-compliant nodes that do not
@@ -165,9 +165,9 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
 
 
 
-Kline & Abrahamsson       Expires March 4, 2017                 [Page 3]
+Kline & Abrahamsson      Expires March 17, 2017                 [Page 3]
 
-Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
+Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
 
    o  DHCPv6 Prefix Delegation to hosts (<https://tools.ietf.org/html/
@@ -180,12 +180,13 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
    Some architectures further isolate the host layers below IPv6, for
    improved client node security.  Regardless of the specific level of
    isolation, the host can best make optimizations and choices about its
-   use of a prefix exclusive to if the host can be informed of the
-   exclusivity.  In the case of a DHCPv6 Prefix Delegation the prefix
-   can be assumed to be of exclusive use by the requesting node (in
-   accordance with the model in [RFC3633]).  This memo documents an
-   additional bit in the IPv6 Prefix Information Option (PIO) that makes
-   all of this explicit to receiving node.
+   use of a prefix exclusively forwarded to itself if the host can be
+   informed of the exclusivity.  In the case of a DHCPv6 Prefix
+   Delegation the prefix can be assumed to be of exclusive use by the
+   requesting node (in accordance with the model in [RFC3633]).
+
+   This memo documents an additional bit in the IPv6 RA PIO that makes
+   this information explicit to receiving node.
 
 3.  Terminology
 
@@ -220,10 +221,9 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
 
 
 
-
-Kline & Abrahamsson       Expires March 4, 2017                 [Page 4]
+Kline & Abrahamsson      Expires March 17, 2017                 [Page 4]
 
-Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
+Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
 
 4.  Updated Prefix Information Option
@@ -259,10 +259,12 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
 
   X        The eXclusive use indicator flag, defined by this document.
            When set, the receiving node can be assured that all traffic
-           destined to any address within the specified Prefix will
+           destined to any address within the specified Prefix will be
            forwarded to itself by, at a minimum, the router from which
            the encapsulating RA was received, but possibly other routers
-           as well.  When not set, the receiving node MUST NOT make any
+           as well.
+
+           When not set, the receiving node MUST NOT make any
            assumptions of exclusive use of the specified Prefix, i.e.
            processing is unchanged from previous standards behaviour.
 
@@ -275,11 +277,9 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
 
 
 
-
-
-Kline & Abrahamsson       Expires March 4, 2017                 [Page 5]
+Kline & Abrahamsson      Expires March 17, 2017                 [Page 5]
 
-Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
+Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
 
 4.2.  Processing
@@ -333,9 +333,9 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
 
 
 
-Kline & Abrahamsson       Expires March 4, 2017                 [Page 6]
+Kline & Abrahamsson      Expires March 17, 2017                 [Page 6]
 
-Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
+Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
 
 5.1.2.  PIO A bit
@@ -389,9 +389,9 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
 
 
 
-Kline & Abrahamsson       Expires March 4, 2017                 [Page 7]
+Kline & Abrahamsson      Expires March 17, 2017                 [Page 7]
 
-Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
+Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
 
 5.3.  Link-local address behaviour
@@ -445,9 +445,9 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
 
 
 
-Kline & Abrahamsson       Expires March 4, 2017                 [Page 8]
+Kline & Abrahamsson      Expires March 17, 2017                 [Page 8]
 
-Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
+Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
 
    there is guaranteed to only be single host that will receive the
@@ -501,9 +501,9 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
 
 
 
-Kline & Abrahamsson       Expires March 4, 2017                 [Page 9]
+Kline & Abrahamsson      Expires March 17, 2017                 [Page 9]
 
-Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
+Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
 
    other networks.  This is so that the host can start using PIO-X
@@ -557,9 +557,9 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
 
 
 
-Kline & Abrahamsson       Expires March 4, 2017                [Page 10]
+Kline & Abrahamsson      Expires March 17, 2017                [Page 10]
 
-Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
+Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
 
 9.  Security Considerations
@@ -613,9 +613,9 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
 
 
 
-Kline & Abrahamsson       Expires March 4, 2017                [Page 11]
+Kline & Abrahamsson      Expires March 17, 2017                [Page 11]
 
-Internet-Draft          IPv6 RA PIO Exclusive Bit            August 2016
+Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
 
    [RFC7934]  Colitti, L., Cerf, V., Cheshire, S., and D. Schinazi,
@@ -669,4 +669,4 @@ Authors' Addresses
 
 
 
-Kline & Abrahamsson       Expires March 4, 2017                [Page 12]
+Kline & Abrahamsson      Expires March 17, 2017                [Page 12]

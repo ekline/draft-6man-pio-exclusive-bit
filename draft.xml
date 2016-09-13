@@ -131,7 +131,7 @@ some traffic-saving optimizations (e.g. disable ND and DAD for addresses
 within this prefix) and more immediately pursue the benefits of being provided
 multiple addresses (vis. <xref target="RFC7934"/> section 3). Additionally,
 network infrastructure nodes (routers, switches) can benefit by minimizing the
-number of (link layer, IP) address pairs required to offer network connectivity
+number of {link layer, IP} address pairs required to offer network connectivity
 (vis. <xref target="RFC7934"/> section 9.3).
       </t>
       <t>
@@ -162,13 +162,13 @@ immediately pursue the benefits of being provided multiple addresses
       </t>
       <t>
 Additionally, network infrastructure nodes (routers, switches) can benefit by
-minimizing the number of (link layer, IP) address pairs required to offer
+minimizing the number of {link layer, IP} address pairs required to offer
 network connectivity (vis. <xref target="RFC7934"/> section 9.3). A router,
-for example, need not create any (link layer, IP) address pair entries for
-and IP address within a proffered exclusive-use prefix--it can reliably forward
+for example, need not create any {link layer, IP} address pair entries for
+IP address within a proffered exclusive-use prefix--it can reliably forward
 all traffic to the network node to which it advertised the prefix. This solves
 a potential link layer state exhaustion problem, i.e excessive number of
-(link layer, IP address pairs, using IP layer forwarding.
+{link layer, IP address pairs}, using IP layer forwarding.
       </t>
       <t>
 Use of the X bit is backward compatible with existing IPv6 standards compliant
@@ -201,12 +201,15 @@ advertising a unique prefix per host via unique RAs.
       <t>
 Some architectures further isolate the host layers below IPv6, for improved
 client node security.  Regardless of the specific level of isolation, the host
-can best make optimizations and choices about its use of a prefix exclusive to
-if the host can be informed of the exclusivity.  In the case of a DHCPv6 Prefix
-Delegation the prefix can be assumed to be of exclusive use by the requesting
-node (in accordance with the model in <xref target="RFC3633"/>).
-This memo documents an additional bit in the IPv6 Prefix Information Option
-(PIO) that makes all of this explicit to receiving node.
+can best make optimizations and choices about its use of a prefix exclusively
+forwarded to itself if the host can be informed of the exclusivity.  In the
+case of a DHCPv6 Prefix Delegation the prefix can be assumed to be of exclusive
+use by the requesting node (in accordance with the model in
+<xref target="RFC3633"/>).
+      </t>
+      <t>
+This memo documents an additional bit in the IPv6 RA PIO that makes this
+information explicit to receiving node.
       </t>
     </section>
 
@@ -293,10 +296,14 @@ field as follows.
           <c>
 The eXclusive use indicator flag, defined by this document. When set,
 the receiving node can be assured that all traffic destined to any address
-within the specified Prefix will forwarded to itself by, at a minimum, the
-router from which the encapsulating RA was received, but possibly other
+within the specified Prefix will be forwarded to itself by, at a minimum,
+the router from which the encapsulating RA was received, but possibly other
 routers as well.
+          </c>
 
+          <c>&nbsp;</c><c>&nbsp;</c><c>&nbsp;</c>
+
+          <c>&nbsp;</c><c>&nbsp;</c><c>
 When not set, the receiving node MUST NOT make any assumptions of exclusive
 use of the specified Prefix, i.e. processing is unchanged from previous
 standards behaviour.
