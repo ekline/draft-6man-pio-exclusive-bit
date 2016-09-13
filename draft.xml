@@ -314,21 +314,59 @@ standards behaviour.
           <c>Rsrvd1</c>
           <c>&nbsp;</c>
           <c>
-Retains the same meaning as Reserved1 from rfc4861#section-4.6.2.
+Retains the same meaning as Reserved1 from <eref target="RFC4861"/>
+section 4.6.2.
           </c>
 
           <c>&nbsp;</c><c>&nbsp;</c><c>&nbsp;</c>
 
           <c>All other fields</c>
           <c>&nbsp;</c>
-          <c>Retain their same meaning rfc4861#section-4.6.2.</c>
+          <c>
+Retain their same meaning from <eref target="RFC4861"/> section 4.6.2.
+          </c>
         </texttable>
       </section>
       <section anchor="pio-x_processing" title="Processing">
 <t>
+Nodes compliant with this specification perform the following additional
+processing of RAs and PIO-X options when a PIO-X option is present.
+</t>
+
+        <section anchor="pio-x_sole_recipient"
+                 title="Verify sole unicast recipient">
+<t>
+A node receiving a PIO-X option MUST verify that it is the sole intended
+recipient of the PIO-X RA.  This done by verifying that the RA is unicast
+to the node at the IPv6 layer and, if applicable, at the link layer.
+</t>
+
+<t>
+If an address other than :: (the unspecified address) was used as the source
+address for one or more Router Soliciations (RS) on this link, the node MUST
+verify that the IPv6 destination address of the PIO-X RA is one of the RS
+source addresses in use.
+</t>
+
+<t>
+If the node receives a PIO-X RA over a link-layer medium that supports
+link-layer addresses, it MUST verify that the link-layer destination address
+of the PIO-X RA is its own link-layer address.  If the node received a PIO-X RA
+over a point-to-point medium (such as PPP) this step is unnecessary.
+</t>
+
+<t>
+If any part of this "sole unicast recipient" verification fails, the node MUST
+ignore the PIO-X bit and continue processing as if it were not set (X=0).
+</t>
+        </section>
+
+        <section anchor="pio-x_other_flags"
+                 title="(Re)Interpretation of other flags">
+<t>
 Nodes compliant with this specification, i.e. those that understand the X-bit,
-MUST (if the X-bit is set) ignore the actual values of the L and A bits and
-instead intepret them as follows:
+MUST, when the X-bit is set, ignore the actual values of the L and A flags
+and instead intepret them as follows:
 </t>
 
 <t>
@@ -336,23 +374,52 @@ instead intepret them as follows:
   <t>interpret the L bit as if it were 0 (L=0)</t>
   <t>interpret the A bit as it it were 1 (A=1)</t>
 </list>
-The rationale for this is discussed further in <xref target="host_behaviour"/>.
+The rationale for this is as follows.
 </t>
+            <section title="PIO L bit">
+              <t>
+Because a PIO-X aware node will know that it has exclusive use of a prefix
+with non-zero valid lifetime, the prefix itself cannot be considered to be
+on-link with respect to the link on which the PIO-X RA was received.
+              </t>
+              <t>
+Note that a given address from within the prefix may be considered on-link
+according to the definition in <eref target="RFC5942"/> section 4, item 1,
+should the receiving node chose to configure that address on said link, but
+this is in no way synonymous with the entire prefix being considered on-link.
+              </t>
+            </section>
 
+            <section title="PIO A bit">
+              <t>
+Because a PIO-X aware node will know that it has exclusive use of a prefix
+with non-zero valid lifetime, autoconfiguration of addresses according to
+any desired scheme, e.g. <eref target="RFC4862"/>, <eref target="RFC7217"/>,
+et cetera, is implicit in the setting of the X bit.
+              </t>
+              <t>
+Accordingly, the A bit can be interpreted as having been set, should the host
+choose to apply standard address generation schemes that require the bit to
+be set. It is free to assign any address formed from an exclusive prefix to any
+available interface; it is not required to configure the address on the link
+over which the PIO-X RA was received (i.e. it is under no obligation to form
+addresses such that they would be classified as on-link (according to the
+definition in <eref target="RFC5942"/> section 4, item 1).
+              </t>
+            </section>
+        </section>
+      </section>
+
+      <section anchor="pio-x_transmission" title="Transmitting PIO-X RAs">
 <t>
-If the node receives PIO-X RA over a link-layer medium that supports
-unicast/multicast/broadcast link-layer addresses, it SHOULD verify that the
-PIO-X RA destination L3 address is its own link-local L3 address.  If this
-L3 link-local address verification fails, the node SHOULD ignore the PIO-X bit
-and continue processing as if X=0. If the node receives PIO-X RA over a
-point-to-point medium (such as PPP) it SHOULD ignore this verification and
-process the PIO-X normally.
+When a router transmits an RA containing one or more PIO-X options it MUST
+unicast the PIO-X RA to its intended recipient at the IPv6 layer and, if
+applicable, at the link-layer.
 </t>
-
 <t>
-It is RECOMMENDED that RAs containing a PIO with the X-bit set also explicitly
-configure the PIO flags L=0 and A=1, for backward compatibility
-(use by non X-bit aware nodes).
+It is RECOMMENDED that a PIO with the X-bit set also have the PIO flags
+L=0 and A=1 explicitly configured, for backward compatibility (i.e. use
+by non X-bit aware nodes).
 </t>
       </section>
     </section>
@@ -360,44 +427,11 @@ configure the PIO flags L=0 and A=1, for backward compatibility
     <section anchor="host_behaviour" title="Host behaviour">
       <section title="PIO-X processing">
         <t>
-A receiving node compliant with this document processes a PIO entry with
-the X bit set following the requirements in previous standards documents
-(chiefly rfc4861#section-6.3.4) with one key difference: the actual values
-of the L bit and the A bit are ignored. Instead, the receiving node MUST
-interpret the L and A bits according to <xref target="pio-x_processing"/>.
+A receiving node compliant with this document processes an RA with a PIO
+entry with the X flag set according the requirements in previous standards
+documents (chiefly <eref target="RFC4861"/> section 6.3.4) subject to the
+additional requirements documented in <xref target="pio-x_processing"/>.
         </t>
-
-        <section title="PIO L bit">
-          <t>
-Because a PIO-X aware node will know that it has exclusive use of a prefix
-with non-zero valid lifetime, the prefix itself cannot be considered to be
-on-link with respect to the link on which the PIO-X RA was received.
-          </t>
-          <t>
-Note that a given address from within the prefix may be considered on-link
-according to the definition in <eref target="RFC5942"/> section-4, item 1,
-should the receiving node chose to configure that address on said link, but
-this is in no way synonymous with the entire prefix being considered on-link.
-          </t>
-        </section>
-
-        <section title="PIO A bit">
-          <t>
-Because a PIO-X aware node will know that it has exclusive use of a prefix
-with non-zero valid lifetime, autoconfiguration of addresses according to
-any desired scheme, e.g. <eref target="RFC4862"/>, <eref target="RFC7217"/>,
-et cetera, is inherent in the setting of the X bit.
-          </t>
-          <t>
-Accordingly, the A bit can be interpreted as having been set, should the host
-choose to apply standard address generation schemes that require the bit to
-be set. It is free to assign any address formed from an exclusive prefix to any
-available interface; it is not required to configure the address on the link
-over which the PIO-X RA was received (i.e. it is under no obligation to form
-addresses such that they would be classified as on-link (according to the
-definition in rfc5942#section-4, item 1).
-          </t>
-        </section>
       </section>
 
       <section title="Neighbor Discovery implications">
