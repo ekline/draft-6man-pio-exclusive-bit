@@ -6,7 +6,7 @@ Internet Engineering Task Force                                 E. Kline
 Internet-Draft                                           Google Japan KK
 Updates: 4861 (if approved)                               M. Abrahamsson
 Intended status: Experimental                           T-Systems Nordic
-Expires: March 18, 2017                               September 14, 2016
+Expires: March 19, 2017                               September 15, 2016
 
 
    IPv6 Router Advertisement Prefix Information Option Exclusive Bit
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on March 18, 2017.
+   This Internet-Draft will expire on March 19, 2017.
 
 
 
@@ -53,7 +53,7 @@ Status of This Memo
 
 
 
-Kline & Abrahamsson      Expires March 18, 2017                 [Page 1]
+Kline & Abrahamsson      Expires March 19, 2017                 [Page 1]
 
 Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
@@ -86,36 +86,37 @@ Table of Contents
    4.  Updated Prefix Information Option . . . . . . . . . . . . . .   5
      4.1.  Updated format description  . . . . . . . . . . . . . . .   5
      4.2.  Processing  . . . . . . . . . . . . . . . . . . . . . . .   6
-       4.2.1.  Verify sole unicast recipient . . . . . . . . . . . .   6
+       4.2.1.  Verify sole recipient . . . . . . . . . . . . . . . .   6
        4.2.2.  (Re)Interpretation of other flags . . . . . . . . . .   7
          4.2.2.1.  PIO L bit . . . . . . . . . . . . . . . . . . . .   7
          4.2.2.2.  PIO A bit . . . . . . . . . . . . . . . . . . . .   7
-     4.3.  Transmitting PIO-X RAs  . . . . . . . . . . . . . . . . .   7
+     4.3.  Transmitting PIO-X RAs  . . . . . . . . . . . . . . . . .   8
    5.  Host behaviour  . . . . . . . . . . . . . . . . . . . . . . .   8
      5.1.  PIO-X processing  . . . . . . . . . . . . . . . . . . . .   8
      5.2.  Neighbor Discovery implications . . . . . . . . . . . . .   8
        5.2.1.  Duplicate Address Detection (DAD) . . . . . . . . . .   8
        5.2.2.  Router Solications (RSes) . . . . . . . . . . . . . .   8
      5.3.  Link-local address behaviour  . . . . . . . . . . . . . .   9
-     5.4.  Address and next hop router selection . . . . . . . . . .   9
-     5.5.  Additional guidance . . . . . . . . . . . . . . . . . . .   9
+     5.4.  Source address selection  . . . . . . . . . . . . . . . .   9
+     5.5.  Next hop router selection . . . . . . . . . . . . . . . .   9
+     5.6.  Additional guidance . . . . . . . . . . . . . . . . . . .   9
    6.  Router behaviour  . . . . . . . . . . . . . . . . . . . . . .   9
-     6.1.  PIO-X RA destination address  . . . . . . . . . . . . . .   9
+     6.1.  PIO-X RA destination address  . . . . . . . . . . . . . .  10
      6.2.  Detecting hosts to send PIO-X RAs to  . . . . . . . . . .  10
      6.3.  Binding table requirements  . . . . . . . . . . . . . . .  10
-     6.4.  Preparations before sending RA-X  . . . . . . . . . . . .  10
+     6.4.  Preparations before sending a PIO-X RA  . . . . . . . . .  11
      6.5.  Implementation considerations . . . . . . . . . . . . . .  11
-     6.6.  Timers  . . . . . . . . . . . . . . . . . . . . . . . . .  11
 
 
 
-Kline & Abrahamsson      Expires March 18, 2017                 [Page 2]
+Kline & Abrahamsson      Expires March 19, 2017                 [Page 2]
 
 Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
 
-   7.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  11
-   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  11
+     6.6.  Timers  . . . . . . . . . . . . . . . . . . . . . . . . .  11
+   7.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  12
+   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  12
    9.  Security Considerations . . . . . . . . . . . . . . . . . . .  12
    10. References  . . . . . . . . . . . . . . . . . . . . . . . . .  12
      10.1.  Normative References . . . . . . . . . . . . . . . . . .  12
@@ -164,8 +165,7 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
 
 
-
-Kline & Abrahamsson      Expires March 18, 2017                 [Page 3]
+Kline & Abrahamsson      Expires March 19, 2017                 [Page 3]
 
 Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
@@ -221,7 +221,7 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
 
 
-Kline & Abrahamsson      Expires March 18, 2017                 [Page 4]
+Kline & Abrahamsson      Expires March 19, 2017                 [Page 4]
 
 Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
@@ -277,7 +277,7 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
 
 
-Kline & Abrahamsson      Expires March 18, 2017                 [Page 5]
+Kline & Abrahamsson      Expires March 19, 2017                 [Page 5]
 
 Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
@@ -308,17 +308,22 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
    additional processing of RAs and PIO-X options when a PIO-X option is
    present.
 
-4.2.1.  Verify sole unicast recipient
+4.2.1.  Verify sole recipient
 
-   A node receiving a PIO-X option MUST verify that it is the sole
-   intended recipient of the PIO-X RA.  This done by verifying that the
-   RA is unicast to the node at the IPv6 layer and, if applicable, at
-   the link layer.
+   A node receiving a PIO-X option MUST verify that it is the (likely)
+   sole intended recipient of the PIO-X RA.  This done by verifying that
+   the RA is unicast to the node at the IPv6 layer and, if applicable,
+   at the link layer.  On links that provide the node with a guarantee
+   that it is the only possible PIO-X RA recipient (e.g.  PPP, 3GPP
+   links) this validation step SHOULD NOT be performed.
 
    If an address other than :: (the unspecified address) was used as the
    source address for one or more Router Soliciations (RS) on this link,
    the node MUST verify that the IPv6 destination address of the PIO-X
-   RA is one of the RS source addresses in use.
+   RA is one of the RS source addresses in use.  If the link over which
+   this communication takes place is known to be point-to-point, i.e.
+   the nature of the link ensures that the node is the only possible
+   recipient of an RA this check SHOULD NOT be performed.
 
    If the node receives a PIO-X RA over a link-layer medium that
    supports link-layer addresses, it MUST verify that the link-layer
@@ -326,17 +331,16 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
    If the node received a PIO-X RA over a point-to-point medium (such as
    PPP) this step is unnecessary.
 
-   If any part of this "sole unicast recipient" verification fails, the
-   node MUST ignore the PIO-X bit and continue processing as if it were
-   not set (X=0).
 
 
-
-
-Kline & Abrahamsson      Expires March 18, 2017                 [Page 6]
+Kline & Abrahamsson      Expires March 19, 2017                 [Page 6]
 
 Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
+
+   If any part of this "sole unicast recipient" verification fails, the
+   node MUST ignore the PIO-X bit and continue processing as if it were
+   not set (X=0).
 
 4.2.2.  (Re)Interpretation of other flags
 
@@ -379,26 +383,30 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
    that they would be classified as on-link (according to the definition
    in <RFC5942> section 4, item 1).
 
+
+
+
+
+
+
+Kline & Abrahamsson      Expires March 19, 2017                 [Page 7]
+
+Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
+
+
 4.3.  Transmitting PIO-X RAs
 
    When a router transmits an RA containing one or more PIO-X options it
    MUST unicast the PIO-X RA to its intended recipient at the IPv6 layer
    and, if applicable, at the link-layer.
 
-
-
-
-
-Kline & Abrahamsson      Expires March 18, 2017                 [Page 7]
-
-Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
-
-
    It is RECOMMENDED that a PIO with the X-bit set also have the PIO
    flags L=0 and A=1 explicitly configured, for backward compatibility
    (i.e. use by non X-bit aware nodes).
 
 5.  Host behaviour
+
+   TBD This section needs some work.
 
 5.1.  PIO-X processing
 
@@ -423,48 +431,51 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
 5.2.2.  Router Solications (RSes)
 
-   Routers announcing PIO-X RAs may record the link-local address of an
-   RS as the next hop for the exclusive prefix.  As such, hosts
-   compliant with this specification SHOULD issue Router Solications
-   from a link-local address; they SHOULD NOT use the unspecified
-   address (::) when sending RSes.
+   Routers announcing PIO-X RAs do so via IPv6 unicast to the intended
+   receiving node and may note the IPv6 unicast destination address of
+   an RS as the next hop for the exclusive prefix.  As such, hosts
+   compliant with this SHOULD NOT use the unspecified address (::) when
+   sending RSes; they SHOULD prefer issuing Router Solications from a
+   link-local address.
 
    It is possible for a node to receive multiple RAs with a mix of
    exclusive and non-exclusive PIOs and even non-zero and zero default
    router lifetimes.  While it is not possible for a host (receiving
    node) to be sure it has received all the RA information available to
+
+
+
+Kline & Abrahamsson      Expires March 19, 2017                 [Page 8]
+
+Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
+
+
    it, hosts compliant with this specification SHOULD implement Packet-
    Loss Resiliency for Router Solicitations [RFC7559] so that the host
    continues to transmit Router Solicitations at least until an RA with
    a non-zero default router lifetime has been seen.
 
-
-
-
-
-
-
-
-Kline & Abrahamsson      Expires March 18, 2017                 [Page 8]
-
-Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
-
-
 5.3.  Link-local address behaviour
 
-   Routers announcing PIO-X RAs may record the link-local address of an
-   RS as the next hop for the exclusive prefix.  The host MUST continue
-   to respond to Neighbor Solicitations for this address.  Hosts that
-   attempt to change their link-local address may experience a loss of
-   connectivity.
+   Routers announcing PIO-X RAs may record the source (link-local)
+   address of an RS as the next hop for the exclusive prefix.  A node
+   complieant with this specification MUST continue to respond to
+   Neighbor Solicitations for the source address used to send RSes
+   (alternatively: the destination address of unicast PIO-X RAs
+   received).  Hosts that deprecate or even remove this address may
+   experience a loss of connectivity.
 
-5.4.  Address and next hop router selection
+5.4.  Source address selection
 
-   The receiving node SHOULD perform source address selection and next
-   hop router selection in precisely the same manner it would have had
-   the prefix not been designated as exclusive use for the host.
+   No change to existing source address selection behaviour is required
+   or specificied by this document.
 
-5.5.  Additional guidance
+5.5.  Next hop router selection
+
+   No change to existing nexti hop router selection behaviour is
+   required or specificied by this document.
+
+5.6.  Additional guidance
 
    The intent of networks that use PIO-X RAs is not to enable
    sophisticated routing architectures that could be far better handled
@@ -473,7 +484,7 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
    use of the available addresses.  As such:
 
       A PIO-X receiving node SHOULD NOT issue ICMPv6 Redirects
-      ([RFC4861] section 4.5) for any address within its exclusive
+      ([RFC4861] section 4.5) for any address within an exclusive use
       prefix via the link over which the PIO-X RA was received.
       Redirecting portions of exclusive prefixes to other "upstream" on-
       link nodes is not a supported configuration.
@@ -482,35 +493,32 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
       its exclusive prefixes via the same interface through which the
       exclusive prefix was learned.
 
-      The processing of timers and other behaviour regarding the PIO is
-      unchanged to what is specified in other IPv6 standardization
-      documents.
-
 6.  Router behaviour
 
-   XXX This section needs a lot of work.
+   TBD This section needs some work.
+
+
+
+
+
+Kline & Abrahamsson      Expires March 19, 2017                 [Page 9]
+
+Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
+
 
 6.1.  PIO-X RA destination address
 
    Since the host will not perform DAD for addresses within prefix
    announced via PIO-X, it's very important that only a single host
-   receives the PIO-X RA.  Therefore, the router SHOULD only include
-   PIO-X in RAs that are sent using unicast RAs to destination unicast
-   link-layer address and IPv6 link-local unicast address for a specific
+   receives the PIO-X RA.  Therefore, the router MUST only include PIO-X
+   in RAs that are sent using unicast RAs to destination unicast link-
+   layer address and IPv6 link-local unicast address for a specific
    host.  For point-to-point media without link-layer addresses or where
-
-
-
-Kline & Abrahamsson      Expires March 18, 2017                 [Page 9]
-
-Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
-
-
    there is guaranteed to only be single host that will receive the
    PIO-X RA (e.g. as enforced by link layer mechanisms), the router MAY
    send PIO-X RA with multicast destination IPv6 address.  Under all
-   circumstances the router MUST keep track of binding table per point-
-   to-point interface.
+   circumstances the router MUST maintain a binding table of state
+   information as discussed in Section 6.3.
 
 6.2.  Detecting hosts to send PIO-X RAs to
 
@@ -527,7 +535,8 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
    case this information MAY be used instead of relying on the host to
    send RS.  It is however RECOMMENDED that these networks also provide
    indication whether the host is no longer connected to the network so
-   that the router can invalidate the prefix binding.
+   that the router can invalidate the prefix binding prior to binding
+   expiration (timeout).
 
 6.3.  Binding table requirements
 
@@ -545,29 +554,29 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
    R4  If the router is informed by some other mechanism (link-layer
        indication for instance) that a node is no longer connected to
-       the link, it MAY immediately invalidate the prefix binding.
-       (DISCUSS: is this the correct approach?  Do we want to point to
-       some definition somewhere else?)
-
-6.4.  Preparations before sending RA-X
-
-   When the router intends to send PIO-X RA, it SHOULD before sending
-   the PIO-X RA, complete all necessary processing needed for the host
-   to start using the PIO-X prefix to communicate through the router to
 
 
 
-Kline & Abrahamsson      Expires March 18, 2017                [Page 10]
+Kline & Abrahamsson      Expires March 19, 2017                [Page 10]
 
 Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
 
+       the link, it MAY immediately invalidate the prefix binding.
+       (DISCUSS: is this the correct approach?  Do we want to point to
+       some definition somewhere else?)
+
+6.4.  Preparations before sending a PIO-X RA
+
+   When the router intends to send a PIO-X RA, it SHOULD before sending
+   the PIO-X RA, complete all necessary processing needed for the host
+   to start using the PIO-X prefix to communicate through the router to
    other networks.  This is so that the host can start using PIO-X
    immediately upon reception of the PIO-X RA.
 
 6.5.  Implementation considerations
 
-   Out of scope things that are worth careful consideration include: XXX
+   Out of scope things that are worth careful consideration include: TBD
 
    Routers SHOULD NOT announce the same prefix to two different nodes
    within the valid lifetime of the earlier of the two PIO-X
@@ -600,6 +609,15 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
    reference, to balance out the number of transmissions required for
    the host to maintain connectivity given a certain percentage of
    packet loss with the resource impact on the host of receiving and
+
+
+
+
+Kline & Abrahamsson      Expires March 19, 2017                [Page 11]
+
+Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
+
+
    processing an RA (e.g.  if the receiving host has energy conservation
    objectives).
 
@@ -608,15 +626,6 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 8.  IANA Considerations
 
    This memo contains no requests of IANA.
-
-
-
-
-
-Kline & Abrahamsson      Expires March 18, 2017                [Page 11]
-
-Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
-
 
 9.  Security Considerations
 
@@ -654,6 +663,17 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
 10.2.  Informative References
 
+
+
+
+
+
+
+Kline & Abrahamsson      Expires March 19, 2017                [Page 12]
+
+Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
+
+
    [RFC3633]  Troan, O. and R. Droms, "IPv6 Prefix Options for Dynamic
               Host Configuration Protocol (DHCP) version 6", RFC 3633,
               DOI 10.17487/RFC3633, December 2003,
@@ -662,17 +682,6 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
    [RFC4191]  Draves, R. and D. Thaler, "Default Router Preferences and
               More-Specific Routes", RFC 4191, DOI 10.17487/RFC4191,
               November 2005, <http://www.rfc-editor.org/info/rfc4191>.
-
-
-
-
-
-
-
-Kline & Abrahamsson      Expires March 18, 2017                [Page 12]
-
-Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
-
 
    [RFC7934]  Colitti, L., Cerf, V., Cheshire, S., and D. Schinazi,
               "Host Address Availability Recommendations", BCP 204,
@@ -716,13 +725,4 @@ Authors' Addresses
 
 
 
-
-
-
-
-
-
-
-
-
-Kline & Abrahamsson      Expires March 18, 2017                [Page 13]
+Kline & Abrahamsson      Expires March 19, 2017                [Page 13]

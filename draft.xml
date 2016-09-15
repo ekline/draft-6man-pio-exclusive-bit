@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="US-ASCII"?>
+
+<!--
+
+NOTES:
+
+    - rewrite processing to be more programmatic in its processing
+        - exception conditional exits up front
+          (like exceptions for point-to-point links)
+    - consider defining some more helpful terms
+        - known guaranteed point-to-point link
+    - section about "likely sole recipient" that can be referred to
+      from other sections
+    - finish review of section 6
+        - what about some MUSTs?
+
+  -->
+
 <!-- This template is for creating an Internet Draft using xml2rfc,
      which is available here: http://xml.resource.org. -->
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
@@ -334,18 +351,24 @@ processing of RAs and PIO-X options when a PIO-X option is present.
 </t>
 
         <section anchor="pio-x_sole_recipient"
-                 title="Verify sole unicast recipient">
+                 title="Verify sole recipient">
 <t>
-A node receiving a PIO-X option MUST verify that it is the sole intended
-recipient of the PIO-X RA.  This done by verifying that the RA is unicast
-to the node at the IPv6 layer and, if applicable, at the link layer.
+A node receiving a PIO-X option MUST verify that it is the (likely) sole
+intended recipient of the PIO-X RA.  This done by verifying that the RA is
+unicast to the node at the IPv6 layer and, if applicable, at the link layer.
+On links that provide the node with a guarantee that it is the only possible
+PIO-X RA recipient (e.g.  PPP, 3GPP links) this validation step SHOULD NOT
+be performed.
 </t>
 
 <t>
 If an address other than :: (the unspecified address) was used as the source
 address for one or more Router Soliciations (RS) on this link, the node MUST
 verify that the IPv6 destination address of the PIO-X RA is one of the RS
-source addresses in use.
+source addresses in use.  If the link over which this communication takes
+place is known to be point-to-point, i.e. the nature of the link ensures that
+the node is the only possible recipient of an RA this check SHOULD NOT be
+performed.
 </t>
 
 <t>
@@ -425,6 +448,10 @@ by non X-bit aware nodes).
     </section>
 
     <section anchor="host_behaviour" title="Host behaviour">
+      <t>
+TBD This section needs some work.
+      </t>
+
       <section title="PIO-X processing">
         <t>
 A receiving node compliant with this document processes an RA with a PIO
@@ -450,10 +477,11 @@ Requirement 2 of RFC7278 section 3.
 
         <section title="Router Solications (RSes)">
           <t>
-Routers announcing PIO-X RAs may record the link-local address of an RS as
-the next hop for the exclusive prefix. As such, hosts compliant with this
-specification SHOULD issue Router Solications from a link-local address; they
-SHOULD NOT use the unspecified address (::) when sending RSes.
+Routers announcing PIO-X RAs do so via IPv6 unicast to the intended receiving
+node and may note the IPv6 unicast destination address of an RS as the next
+hop for the exclusive prefix. As such, hosts compliant with this SHOULD NOT
+use the unspecified address (::) when sending RSes; they SHOULD prefer
+issuing Router Solications from a link-local address.
           </t>
 
           <t>
@@ -471,18 +499,26 @@ has been seen.
 
       <section title="Link-local address behaviour">
         <t>
-Routers announcing PIO-X RAs may record the link-local address of an RS as
-the next hop for the exclusive prefix. The host MUST continue to respond to
-Neighbor Solicitations for this address. Hosts that attempt to change their
-link-local address may experience a loss of connectivity.
+Routers announcing PIO-X RAs may record the source (link-local) address of an
+RS as the next hop for the exclusive prefix. A node complieant with this
+specification MUST continue to respond to Neighbor Solicitations for the source
+address used to send RSes (alternatively: the destination address of unicast
+PIO-X RAs received). Hosts that deprecate or even remove this address may
+experience a loss of connectivity.
         </t>
       </section>
 
-      <section title="Address and next hop router selection">
+      <section title="Source address selection">
         <t>
-The receiving node SHOULD perform source address selection and next hop router
-selection in precisely the same manner it would have had the prefix not been
-designated as exclusive use for the host.
+No change to existing source address selection behaviour is required or
+specificied by this document.
+        </t>
+      </section>
+
+      <section title="Next hop router selection">
+        <t>
+No change to existing nexti hop router selection behaviour is required or
+specificied by this document.
         </t>
       </section>
 
@@ -496,7 +532,7 @@ As such:
           <list>
             <t>
 A PIO-X receiving node SHOULD NOT issue ICMPv6 Redirects
-(<xref target="RFC4861"/> section 4.5) for any address within its exclusive
+(<xref target="RFC4861"/> section 4.5) for any address within an exclusive use
 prefix via the link over which the PIO-X RA was received. Redirecting portions
 of exclusive prefixes to other "upstream" on-link nodes is not a supported
 configuration.
@@ -505,10 +541,6 @@ configuration.
 A PIO-X receiving node SHOULD NOT transmit RAs with any subset of its exclusive
 prefixes via the same interface through which the exclusive prefix was learned.
             </t>
-            <t>
-The processing of timers and other behaviour regarding the PIO is unchanged to
-what is specified in other IPv6 standardization documents.
-            </t>
           </list>
         </t>
       </section>
@@ -516,20 +548,21 @@ what is specified in other IPv6 standardization documents.
 
     <section title="Router behaviour">
       <t>
-XXX This section needs a lot of work.
+TBD This section needs some work.
       </t>
 
       <section title="PIO-X RA destination address">
         <t>
 Since the host will not perform DAD for addresses within prefix announced via
 PIO-X, it's very important that only a single host receives the PIO-X RA.
-Therefore, the router SHOULD only include PIO-X in RAs that are sent
+Therefore, the router MUST only include PIO-X in RAs that are sent
 using unicast RAs to destination unicast link-layer address and IPv6 link-local
 unicast address for a specific host. For point-to-point media
 without link-layer addresses or where there is guaranteed to only be single
 host that will receive the PIO-X RA (e.g. as enforced by link layer mechanisms),
 the router MAY send PIO-X RA with multicast destination IPv6 address. Under all
-circumstances the router MUST keep track of binding table per point-to-point interface.
+circumstances the router MUST maintain a binding table of state information as
+discussed in <xref target="piox_binding_table"/>.
         </t>
       </section>
 
@@ -547,11 +580,12 @@ address might be available through other mechanism(s).  Examples of this are
 PPP, 802.1x and 3GPP mobile networks. In that case this information MAY be
 used instead of relying on the host to send RS. It is however RECOMMENDED
 that these networks also provide indication whether the host is no longer
-connected to the network so that the router can invalidate the prefix binding.
+connected to the network so that the router can invalidate the prefix binding
+prior to binding expiration (timeout).
         </t>
       </section>
 
-      <section title="Binding table requirements">
+      <section anchor="piox_binding_table" title="Binding table requirements">
         <t>
           <list counter="reqs" hangIndent="4" style="format R%d">
             <t>
@@ -577,9 +611,9 @@ invalidate the prefix binding.
         </t>
       </section>
 
-      <section title="Preparations before sending RA-X">
+      <section title="Preparations before sending a PIO-X RA">
         <t>
-When the router intends to send PIO-X RA, it SHOULD before sending the PIO-X RA,
+When the router intends to send a PIO-X RA, it SHOULD before sending the PIO-X RA,
 complete all necessary processing needed for the host to start using the PIO-X
 prefix to communicate through the router to other networks. This is so that the
 host can start using PIO-X immediately upon reception of the PIO-X RA.
@@ -588,7 +622,7 @@ host can start using PIO-X immediately upon reception of the PIO-X RA.
 
       <section title="Implementation considerations">
         <t>
-Out of scope things that are worth careful consideration include: XXX
+Out of scope things that are worth careful consideration include: TBD
         </t>
         <t>
 Routers SHOULD NOT announce the same prefix to two different nodes within
