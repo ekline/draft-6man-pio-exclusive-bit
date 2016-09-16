@@ -140,7 +140,7 @@ NOTES:
       <t>
 This document defines a new control bit in the IPv6 RA PIO flags octet
 that indicates that the node receiving this RA is the exclusive receiver of
-all traffic destined to any address with that prefix.
+all traffic destined to any address within that prefix.
       </t>
       <t>
 Termed the eXclusive bit (or "X bit"), nodes that recognize this can perform
@@ -261,7 +261,7 @@ more PIOs without the X bit set).
 
         <section title="Host">
           <t>
-The term "host" may be used interchangably throughout this document to mean
+The term "host" may be used interchangeably throughout this document to mean
 a network node receiving and processing an RA. The receiving node may itself
 be a router, or may temporarily become one by routing all or a portion of an
 exclusive use prefix.
@@ -363,7 +363,7 @@ be performed.
 
 <t>
 If an address other than :: (the unspecified address) was used as the source
-address for one or more Router Soliciations (RS) on this link, the node MUST
+address for one or more Router Solicitations (RS) on this link, the node MUST
 verify that the IPv6 destination address of the PIO-X RA is one of the RS
 source addresses in use.  If the link over which this communication takes
 place is known to be point-to-point, i.e. the nature of the link ensures that
@@ -389,7 +389,7 @@ ignore the PIO-X bit and continue processing as if it were not set (X=0).
 <t>
 Nodes compliant with this specification, i.e. those that understand the X-bit,
 MUST, when the X-bit is set, ignore the actual values of the L and A flags
-and instead intepret them as follows:
+and instead interpret them as follows:
 </t>
 
 <t>
@@ -469,19 +469,19 @@ it SHOULD NOT perform Duplicate Address Detection (DAD) on any address it
 configures from within the prefix if that address is configured on either the
 interface over which the PIO-X RA was received or on a loopback interface.
 Note that this does not absolve the host from performing DAD in all scenarios;
-if, for example, the host uses the prefix for 64sharing it MUST at a minimum
+if, for example, the host uses the prefix for 64sharing (TODO: ADD LINK) it MUST at a minimum
 defend via DAD any addresses it has configured for itself as documented in
 Requirement 2 of RFC7278 section 3.
           </t>
         </section>
 
-        <section title="Router Solications (RSes)">
+        <section title="Router Solicitations (RSes)">
           <t>
 Routers announcing PIO-X RAs do so via IPv6 unicast to the intended receiving
 node and may note the IPv6 unicast destination address of an RS as the next
 hop for the exclusive prefix. As such, hosts compliant with this SHOULD NOT
 use the unspecified address (::) when sending RSes; they SHOULD prefer
-issuing Router Solications from a link-local address.
+issuing Router Solicitations from a link-local address.
           </t>
 
           <t>
@@ -500,7 +500,7 @@ has been seen.
       <section title="Link-local address behaviour">
         <t>
 Routers announcing PIO-X RAs may record the source (link-local) address of an
-RS as the next hop for the exclusive prefix. A node complieant with this
+RS as the next hop for the exclusive prefix. A node compliant with this
 specification MUST continue to respond to Neighbor Solicitations for the source
 address used to send RSes (alternatively: the destination address of unicast
 PIO-X RAs received). Hosts that deprecate or even remove this address may
@@ -511,14 +511,14 @@ experience a loss of connectivity.
       <section title="Source address selection">
         <t>
 No change to existing source address selection behaviour is required or
-specificied by this document.
+specified by this document.
         </t>
       </section>
 
       <section title="Next hop router selection">
         <t>
-No change to existing nexti hop router selection behaviour is required or
-specificied by this document.
+No change to existing next hop router selection behaviour is required or
+specified by this document.
         </t>
       </section>
 
@@ -589,23 +589,29 @@ prior to binding expiration (timeout).
         <t>
           <list counter="reqs" hangIndent="4" style="format R%d">
             <t>
-The router SHOULD keep track of what PIO-X prefix has been assigned to each node.
+The router SHOULD keep track of which PIO-X prefix has been issued to each
+node.
             </t>
             <t>
 The router SHOULD keep the binding between prefix and link-local address for
-2x the advertised valid lifetime of the prefix.
+the advertised valid lifetime, plus some operationally determined delay prior
+to reissuing a prefix ("grace period"), of the prefix.
             </t>
             <t>
-The binding SHOULD be considered refreshed each time the router receives an RS
-from a link-local address and the router sends out corresponding PIO-X RA.
-This means a prefix isn't re-used for another node for 2x the lifetime of the
-prefix advertised to the first node.
+The router MUST monitor the reachability of each node in the binding table via
+NUD (TODO: reference) or an equivalent link-layer mechanism.
+            </t>
+            <t>
+The binding SHOULD be considered refreshed every time a periodic PIO-X RA is
+sent to a node.
             </t>
             <t>
 If the router is informed by some other mechanism (link-layer indication for
 instance) that a node is no longer connected to the link, it MAY immediately
 invalidate the prefix binding.
-(DISCUSS: is this the correct approach? Do we want to point to some definition somewhere else?)
+(DISCUSS:
+    Is this the correct approach?
+    Do we want to point to some definition somewhere else?)
             </t>
           </list>
         </t>
@@ -616,7 +622,7 @@ invalidate the prefix binding.
 When the router intends to send a PIO-X RA, it SHOULD before sending the PIO-X RA,
 complete all necessary processing needed for the host to start using the PIO-X
 prefix to communicate through the router to other networks. This is so that the
-host can start using PIO-X immediately upon reception of the PIO-X RA.
+host can start using PIO-X based addresses immediately after reception of the PIO-X RA.
         </t>
       </section>
 
@@ -639,28 +645,6 @@ node should send exclusive use prefix originated or forwarded traffic destined
 off-link through routers with non-zero default router lifetimes.
         </t>
         <t>
-        </t>
-      </section>
-
-      <section title="Timers">
-        <t>
-Routers SHOULD NOT announce the same prefix to two different nodes within
-the valid lifetime of the earlier of the two PIO announcements.
-        </t>
-        <t>
-It is a configuration error for more than one router on a link to announce
-PIO-X information for the same prefix with substantially different lifetimes.
-        </t>
-        <t>
-The router MUST send new unicast RAs according to the times defined in RFC XXX
-section XYZ. It detects that the host is still available either by wiki AP
-attachment, link being up, or by verifying host availability by doing NUD
-to the host link-local address.
-
-Energy RFC reference, to balance out the number of transmissions required for
-the host to maintain connectivity given a certain percentage of packet loss
-with the resource impact on the host of receiving and processing an RA (e.g.
-if the receiving host has energy conservation objectives).
         </t>
       </section>
     </section>
