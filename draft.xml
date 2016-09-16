@@ -11,8 +11,6 @@ NOTES:
         - known guaranteed point-to-point link
     - section about "likely sole recipient" that can be referred to
       from other sections
-    - finish review of section 6
-        - what about some MUSTs?
 
   -->
 
@@ -39,6 +37,8 @@ NOTES:
     SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4862.xml">
   <!ENTITY RFC6418
     SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6418.xml">
+  <!ENTITY RFC7278
+    SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7278.xml">
   <!ENTITY RFC7559
     SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7559.xml">
   <!ENTITY RFC7934
@@ -449,7 +449,7 @@ by non X-bit aware nodes).
 
     <section anchor="host_behaviour" title="Host behaviour">
       <t>
-TBD This section needs some work.
+TODO: This section needs some work.
       </t>
 
       <section title="PIO-X processing">
@@ -465,13 +465,15 @@ additional requirements documented in <xref target="pio-x_processing"/>.
         <section title="Duplicate Address Detection (DAD)">
           <t>
 Whatever use the host makes of the exclusive prefix during its valid lifetime,
-it SHOULD NOT perform Duplicate Address Detection (DAD) on any address it
+it SHOULD NOT perform Duplicate Address Detection ("DAD",
+<eref target="RFC4862"/> section 5.4) on any address it
 configures from within the prefix if that address is configured on either the
 interface over which the PIO-X RA was received or on a loopback interface.
 Note that this does not absolve the host from performing DAD in all scenarios;
-if, for example, the host uses the prefix for 64sharing (TODO: ADD LINK) it MUST at a minimum
-defend via DAD any addresses it has configured for itself as documented in
-Requirement 2 of RFC7278 section 3.
+if, for example, the host uses the prefix for
+<eref target="RFC7278">64sharing</eref> it MUST at a minimum defend via DAD
+any addresses it has configured for itself as documented in Requirement 2 of
+<eref target="RFC7278"/> section 3.
           </t>
         </section>
 
@@ -548,7 +550,7 @@ prefixes via the same interface through which the exclusive prefix was learned.
 
     <section title="Router behaviour">
       <t>
-TBD This section needs some work.
+TODO: This section needs some work.
       </t>
 
       <section title="PIO-X RA destination address">
@@ -599,7 +601,8 @@ to reissuing a prefix ("grace period"), of the prefix.
             </t>
             <t>
 The router MUST monitor the reachability of each node in the binding table via
-NUD (TODO: reference) or an equivalent link-layer mechanism.
+Neighbor Unreachability Detection ("NUD", <eref target="RFC4861"/> section 7.3)
+or an equivalent link-layer mechanism.
             </t>
             <t>
 The binding SHOULD be considered refreshed every time a periodic PIO-X RA is
@@ -628,7 +631,7 @@ host can start using PIO-X based addresses immediately after reception of the PI
 
       <section title="Implementation considerations">
         <t>
-Out of scope things that are worth careful consideration include: TBD
+TODO: Out of scope things that are worth careful consideration include...
         </t>
         <t>
 Routers SHOULD NOT announce the same prefix to two different nodes within

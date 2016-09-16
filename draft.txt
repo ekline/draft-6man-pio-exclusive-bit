@@ -100,7 +100,7 @@ Table of Contents
      5.4.  Source address selection  . . . . . . . . . . . . . . . .   9
      5.5.  Next hop router selection . . . . . . . . . . . . . . . .   9
      5.6.  Additional guidance . . . . . . . . . . . . . . . . . . .   9
-   6.  Router behaviour  . . . . . . . . . . . . . . . . . . . . . .   9
+   6.  Router behaviour  . . . . . . . . . . . . . . . . . . . . . .  10
      6.1.  PIO-X RA destination address  . . . . . . . . . . . . . .  10
      6.2.  Detecting hosts to send PIO-X RAs to  . . . . . . . . . .  10
      6.3.  Binding table requirements  . . . . . . . . . . . . . . .  10
@@ -116,11 +116,12 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
    7.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  11
    8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  11
-   9.  Security Considerations . . . . . . . . . . . . . . . . . . .  11
+   9.  Security Considerations . . . . . . . . . . . . . . . . . . .  12
    10. References  . . . . . . . . . . . . . . . . . . . . . . . . .  12
      10.1.  Normative References . . . . . . . . . . . . . . . . . .  12
      10.2.  Informative References . . . . . . . . . . . . . . . . .  12
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  12
+     10.3.  URIs . . . . . . . . . . . . . . . . . . . . . . . . . .  13
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  13
 
 1.  Introduction
 
@@ -161,7 +162,6 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
    that provide customer isolation, enhanced operational scalability,
    power efficiency, security and other benefits in IPv6 network
    deployments.  Some of these involve isolating a host (or RA accepting
-
 
 
 
@@ -406,7 +406,7 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
 5.  Host behaviour
 
-   TBD This section needs some work.
+   TODO: This section needs some work.
 
 5.1.  PIO-X processing
 
@@ -420,14 +420,15 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 5.2.1.  Duplicate Address Detection (DAD)
 
    Whatever use the host makes of the exclusive prefix during its valid
-   lifetime, it SHOULD NOT perform Duplicate Address Detection (DAD) on
-   any address it configures from within the prefix if that address is
-   configured on either the interface over which the PIO-X RA was
-   received or on a loopback interface.  Note that this does not absolve
-   the host from performing DAD in all scenarios; if, for example, the
-   host uses the prefix for 64sharing (TODO: ADD LINK) it MUST at a
-   minimum defend via DAD any addresses it has configured for itself as
-   documented in Requirement 2 of RFC7278 section 3.
+   lifetime, it SHOULD NOT perform Duplicate Address Detection ("DAD",
+   <RFC4862> section 5.4) on any address it configures from within the
+   prefix if that address is configured on either the interface over
+   which the PIO-X RA was received or on a loopback interface.  Note
+   that this does not absolve the host from performing DAD in all
+   scenarios; if, for example, the host uses the prefix for 64sharing
+   [1] it MUST at a minimum defend via DAD any addresses it has
+   configured for itself as documented in Requirement 2 of <RFC7278>
+   section 3.
 
 5.2.2.  Router Solicitations (RSes)
 
@@ -441,7 +442,6 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
    It is possible for a node to receive multiple RAs with a mix of
    exclusive and non-exclusive PIOs and even non-zero and zero default
    router lifetimes.  While it is not possible for a host (receiving
-   node) to be sure it has received all the RA information available to
 
 
 
@@ -450,6 +450,7 @@ Kline & Abrahamsson      Expires March 20, 2017                 [Page 8]
 Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
 
+   node) to be sure it has received all the RA information available to
    it, hosts compliant with this specification SHOULD implement Packet-
    Loss Resiliency for Router Solicitations [RFC7559] so that the host
    continues to transmit Router Solicitations at least until an RA with
@@ -493,9 +494,8 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
       its exclusive prefixes via the same interface through which the
       exclusive prefix was learned.
 
-6.  Router behaviour
 
-   TBD This section needs some work.
+
 
 
 
@@ -505,6 +505,10 @@ Kline & Abrahamsson      Expires March 20, 2017                 [Page 9]
 
 Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
+
+6.  Router behaviour
+
+   TODO: This section needs some work.
 
 6.1.  PIO-X RA destination address
 
@@ -548,12 +552,8 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
        operationally determined delay prior to reissuing a prefix
        ("grace period"), of the prefix.
 
-   R3  The router MUST monitor the reachability of each node in the
-       binding table via NUD (TODO: reference) or an equivalent link-
-       layer mechanism.
 
-   R4  The binding SHOULD be considered refreshed every time a periodic
-       PIO-X RA is sent to a node.
+
 
 
 
@@ -561,6 +561,13 @@ Kline & Abrahamsson      Expires March 20, 2017                [Page 10]
 
 Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
+
+   R3  The router MUST monitor the reachability of each node in the
+       binding table via Neighbor Unreachability Detection ("NUD",
+       <RFC4861> section 7.3) or an equivalent link-layer mechanism.
+
+   R4  The binding SHOULD be considered refreshed every time a periodic
+       PIO-X RA is sent to a node.
 
    R5  If the router is informed by some other mechanism (link-layer
        indication for instance) that a node is no longer connected to
@@ -578,7 +585,8 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
 6.5.  Implementation considerations
 
-   Out of scope things that are worth careful consideration include: TBD
+   TODO: Out of scope things that are worth careful consideration
+   include...
 
    Routers SHOULD NOT announce the same prefix to two different nodes
    within the valid lifetime of the earlier of the two PIO-X
@@ -600,6 +608,16 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
    This memo contains no requests of IANA.
 
+
+
+
+
+
+Kline & Abrahamsson      Expires March 20, 2017                [Page 11]
+
+Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
+
+
 9.  Security Considerations
 
    This document fundamentally introduces no new protocol or behaviour
@@ -609,14 +627,6 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
    the host to make certain optimizations as well as share the exclusive
    prefix as it sees fit with other nodes according to its capabilities
    and policies.
-
-
-
-
-Kline & Abrahamsson      Expires March 20, 2017                [Page 11]
-
-Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
-
 
 10.  References
 
@@ -653,16 +663,6 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
               More-Specific Routes", RFC 4191, DOI 10.17487/RFC4191,
               November 2005, <http://www.rfc-editor.org/info/rfc4191>.
 
-   [RFC7934]  Colitti, L., Cerf, V., Cheshire, S., and D. Schinazi,
-              "Host Address Availability Recommendations", BCP 204,
-              RFC 7934, DOI 10.17487/RFC7934, July 2016,
-              <http://www.rfc-editor.org/info/rfc7934>.
-
-Authors' Addresses
-
-
-
-
 
 
 
@@ -673,6 +673,17 @@ Kline & Abrahamsson      Expires March 20, 2017                [Page 12]
 
 Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
 
+
+   [RFC7934]  Colitti, L., Cerf, V., Cheshire, S., and D. Schinazi,
+              "Host Address Availability Recommendations", BCP 204,
+              RFC 7934, DOI 10.17487/RFC7934, July 2016,
+              <http://www.rfc-editor.org/info/rfc7934>.
+
+10.3.  URIs
+
+   [1] RFC7278
+
+Authors' Addresses
 
    Erik Kline
    Google Japan KK
@@ -691,17 +702,6 @@ Internet-Draft          IPv6 RA PIO Exclusive Bit         September 2016
    SE
 
    Email: Mikael.Abrahamsson@t-systems.se
-
-
-
-
-
-
-
-
-
-
-
 
 
 
