@@ -5,17 +5,34 @@
 NOTES:
 
     - rewrite processing to be more programmatic in its processing
+
         - exception conditional exits up front
           (like exceptions for point-to-point links)
+
     - consider defining some more helpful terms
+
         - known guaranteed point-to-point link
+
     - section about "likely sole recipient" that can be referred to
       from other sections
 
     - Clarify benefits in terms of time saved not doing DAD and
       infrastructure-friendly operations.
+
         - a node could try to use 2^64 optimistic addresses, but
           that's not very friendly unless it knows it's safe
+
+    - Add reference to:
+
+        http://www.potaroo.net/ispcol/2016-09/subnetbind.html
+
+      (and likely the follow-on article too)
+
+    - Add "if you have no better ideas" host behaviour recommendation for /64.
+
+    - Add comment about router state maintenance expectations (similar
+      to DHCPv6-PD snooping).  Also: it only works in networks where the
+      routers have to have solid layer 2 awareness.
 
   -->
 
