@@ -228,13 +228,14 @@ save power by not waking up more power hungry CPUs.
         <t>
 Additionally, a host can save time by not performing DAD for addresses within
 an exclusive-use prefix on the receiving interface.  A host that wanted, for
-example, to use 2**64 unique IPv6 sources addresses for DNS queries in order to
+example, to use 2**64 unique IPv6 source addresses for DNS queries in order to
 improve resilience against forged answers (as recommended in section 9.2 of
 <eref target="RFC5452"/>), could do so without delaying each query from a
 newly formed address.  A node could in theory implement the same strategy using
 <eref target="RFC4429">Optimistic Duplicate Address Detection</eref>, but
-it could be very unfriendly (in terms of {link-layer, IP address} pair state)
-to do so without some signal from the network infrastructure.
+it could be very unfriendly to the network infrastructure
+(in terms of {link-layer, IP address} pair state)
+to do so without some explicit signal.
         </t>
       </section>
 
@@ -321,7 +322,7 @@ exclusive use prefix.
       <section title="Concepts"
                anchor="concepts">
         <t>
-Critical to correct network operations when PIO-X is in use is the concept
+Critical to correct network operations when employing PIO-X is the concept
 that both the router transmitting a PIO-X RA and its intended recipient be
 reasonably assured of the prefix's exclusivity.  In support of this, the router
 must have confidence in the host's presence and reachability, and several
