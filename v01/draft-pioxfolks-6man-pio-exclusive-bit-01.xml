@@ -50,6 +50,8 @@ NOTES:
     SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5942.xml">
   <!ENTITY RFC4862
     SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4862.xml">
+  <!ENTITY RFC6059
+    SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6059.xml">
   <!ENTITY RFC6418
     SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6418.xml">
   <!ENTITY RFC7278
@@ -332,6 +334,9 @@ constraints are placed on the format of the RA for the host to validate.
         <section title="Link layer guarantees"
                  anchor="link_layer_guarantees">
           <t>
+TODO: Add definition of things like "guaranteed point-to-point link" and
+what it is meant by having certain link-layer guarantees.
+<!--
 Both the PIO-X RA advertising router and hosts can use link layer guarantees
 that prefix advertisements are correct when they claim exclusivity.
 
@@ -340,14 +345,15 @@ known guaranteed point-to-point link
 Additionally, a router that is properly informed by the link layer of the
 disappearance of host can use this signal to return the previously allocated
 exclusive prefix to the set of unallocated ones.
+-->
           </t>
         </section>
 
         <section title="Likely sole intended recipient"
                  anchor="sole_recipient">
           <t>
-section about "likely sole recipient" that can be referred to
-      from other sections
+TODO: section about "likely sole recipient" which can be referenced from
+other sections.
           </t>
         </section>
       </section>
@@ -607,6 +613,19 @@ specified by this document.
         </t>
       </section>
 
+      <section title="Implications for Detecting Network Attachment">
+        <t>
+TODO: Describe implications for <eref target="RFC6059">Detecting Network
+Attachment in IPv6</eref> (DNAv6).  Probably the best that can be done is
+(a) no change to RFC6059 coupled with (b) a host MAY send a test packet
+(e.g. ICMPv6 Echo Request) with a source and destination address from within
+the PIO-X prefix to the PIO-X RA issuing router and verify the packet is
+delivered back to itself.  Consistent failure to receive such traffic MAY
+be considered a signal that the exclusive prefix should no longer be used by
+the host.
+        </t>
+      </section>
+
       <section title="Additional guidance">
         <t>
 The intent of networks that use PIO-X RAs is not to enable sophisticated
@@ -634,12 +653,6 @@ prefixes via the same interface through which the exclusive prefix was learned.
     <section title="Router behavior">
       <t>
 TODO: This section needs some work.
-      </t>
-
-      <t>
-Routers transmitting PIO-X RAs have state maintenance and operational
-requirements similar to delegating routers in networks where
-<xref target="RFC3633">DHCPv6 Prefix Delegation</xref> is used.
       </t>
 
       <section title="PIO-X RA destination address">
@@ -678,6 +691,13 @@ prior to binding expiration (timeout).
 
       <section anchor="piox_binding_table" title="Binding table requirements">
         <t>
+Routers transmitting PIO-X RAs have state maintenance and operational
+requirements similar to delegating routers in networks where
+<xref target="RFC3633">DHCPv6 Prefix Delegation</xref> is used. The state
+maintained is describe here in terms of a conceptual binding table.
+        </t>
+
+        <t>
           <list counter="reqs" hangIndent="4" style="format R%d">
             <t>
 The router SHOULD keep track of which PIO-X prefix has been issued to each
@@ -711,10 +731,11 @@ invalidate the prefix binding.
 
       <section title="Preparations before sending a PIO-X RA">
         <t>
-When the router intends to send a PIO-X RA, it SHOULD before sending the PIO-X RA,
-complete all necessary processing needed for the host to start using the PIO-X
-prefix to communicate through the router to other networks. This is so that the
-host can start using PIO-X based addresses immediately after reception of the PIO-X RA.
+When the router intends to send a PIO-X RA, it SHOULD before sending the
+PIO-X RA, complete any and all necessary processing for the host to start using
+the PIO-X prefix to communicate through the router to other networks. This is
+so that the host can start using PIO-X based addresses without delay or error
+after receipt of the PIO-X RA.
         </t>
       </section>
 
