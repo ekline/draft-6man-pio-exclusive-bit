@@ -21,6 +21,42 @@ NOTES:
 
     - Section 5.2.x about NS/NA behaviour
 
+    - Remove verification/validation of PIO-X RAs by host, trust network
+
+    - PIO-X subprefixes of other PIOs (X and non-X) are invalid
+
+***
+
+    - router's next hop has to be a link-local
+
+    - router SHOULD ignore RSes from ::, in order to get the host to
+      retransmit from link-local
+
+    - use applicability statement to describe links and deployment modesl
+      where this works
+
+*** IETF 97 6man
+
+    - Specify applicability only for links with assistance (Lorenzo)
+        - wifi, 3gpp, pppoe
+
+    - registering w/ sleep proxy (woodyatt); specify not applicable
+
+    - clarify router can't select any address(es) for itself from the PIO-X
+        (petrescu)
+
+    - difference in semantics from PD: the network keeps the client refreshed
+      whereas in PD the client is responsible for refreshing its prefix from
+      the server
+
+    - R bit (Router Address; IPv6 Mobility)
+
+***
+
+    - Add MIPv6 doc to list of "updates:" RFCs
+
+    - Add section requesting IANA to create registry of PIO flags
+
   -->
 
 <!-- This template is for creating an Internet Draft using xml2rfc,
@@ -88,7 +124,7 @@ NOTES:
 <rfc category="exp"
      ipr="trust200902"
      updates="4861"
-     docName="draft-pioxfolks-6man-pio-exclusive-bit-01">
+     docName="draft-pioxfolks-6man-pio-exclusive-bit-02">
 
   <!-- category values: std, bcp, info, exp, and historic
      ipr values: full3667, noModification3667, noDerivatives3667
@@ -372,7 +408,7 @@ field as follows.
        0                   1                   2                   3
        0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |     Type      |    Length     | Prefix Length |L|A|X|  Rsrvd1 |
+      |     Type      |    Length     | Prefix Length |L|A|R|X| Rsrvd1|
       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       |                         Valid Lifetime                        |
       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
