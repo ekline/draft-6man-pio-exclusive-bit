@@ -22,6 +22,7 @@ NOTES:
     - Section 5.2.x about NS/NA behaviour
 
     - Remove verification/validation of PIO-X RAs by host, trust network
+      Replace validation with Applicability statement
 
     - PIO-X subprefixes of other PIOs (X and non-X) are invalid
 
@@ -31,9 +32,6 @@ NOTES:
 
     - router SHOULD ignore RSes from ::, in order to get the host to
       retransmit from link-local
-
-    - use applicability statement to describe links and deployment modesl
-      where this works
 
 *** IETF 97 6man
 
@@ -88,6 +86,8 @@ NOTES:
     SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4862.xml">
   <!ENTITY RFC6059
     SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6059.xml">
+  <!ENTITY RFC6275
+    SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6275.xml">
   <!ENTITY RFC6418
     SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6418.xml">
   <!ENTITY RFC7278
@@ -250,7 +250,7 @@ exactly as if the X bit were not set.
 
     <section anchor="motivation" title="Motivation">
       <t>
-This work is motivated by the pursuit of two categories of benefits: some
+This work is motivated by the pursuit of two categories of benefits: modest
 host and network side improvements in efficiency, and support for new
 deployment architectures and address space use models.
       </t>
@@ -308,13 +308,46 @@ accordance with the model in <xref target="RFC3633"/>.)  An implementation can,
 for example, safely "bind to an IPv6 subnet" in the style of
 <eref target="http://www.potaroo.net/ispcol/2016-09/subnetbind.html"/>, or
 start <eref target="RFC7278">64sharing</eref>
-(given a prefix of a suitable size).
+(given a prefix of sufficient size).
        </t>
        <t>
 This memo documents an additional bit in the IPv6 RA PIO that makes this
 information explicit to receiving node.
         </t>
       </section>
+    </section>
+
+    <section title="Applicability statement"
+             anchor="applicability">
+      <t>
+Use of the X bit in PIOs is only applicable to networks where the
+architecture (i.e. serving infrastructure like routers, link-layer equipment,
+et cetera) can collectively guarantee all of the following criteria are met:
+        <list style="numbers">
+          <t>
+an RA containing a PIO with the X bit set MUST be delivered to
+one and only target node (host), for lifetime of the recipient
+node's continuous attachment to the network
+          </t>
+          <t>
+any router advertising an RA containing a PIO with the X bit set
+SHOULD be notified quickly when a node leaves the network
+          </t>
+        </list>
+The first criterion ensures that the same exclusive use prefix is
+not advertised to more than one host at a time (and hence no longer
+"exclusive"). The second criterion aims to help the prefix allocation
+infrastructure reclaim unused prefixes quickly while also helping routers
+drop (possibly with appropriate ICMPv6 errors) traffic that can no longer
+be delivered.
+      </t>
+      <t>
+It is expected that in practice this primarily describes networks where
+the IPv6 infrastructure and the link-layer have a tight integration.
+All point-to-point links meet these criteria (e.g. PPPoE and VPNs),
+as does the 3GPP architecture [link] and some IEEE 802.11 architectures
+[link to johnb's doc].
+      </t>
     </section>
 
     <section title="Terminology">
@@ -353,43 +386,6 @@ The term "host" may be used interchangeably throughout this document to mean
 a network node receiving and processing an RA. The receiving node may itself
 be a router, or may temporarily become one by routing all or a portion of an
 exclusive use prefix.
-          </t>
-        </section>
-      </section>
-
-      <section title="Concepts"
-               anchor="concepts">
-        <t>
-Critical to correct network operations when employing PIO-X is the concept
-that both the router transmitting a PIO-X RA and its intended recipient be
-reasonably assured of the prefix's exclusivity.  In support of this, the router
-must have confidence in the host's presence and reachability, and several
-constraints are placed on the format of the RA for the host to validate.
-        </t>
-
-        <section title="Link layer guarantees"
-                 anchor="link_layer_guarantees">
-          <t>
-TODO: Add definition of things like "guaranteed point-to-point link" and
-what it is meant by having certain link-layer guarantees.
-<!--
-Both the PIO-X RA advertising router and hosts can use link layer guarantees
-that prefix advertisements are correct when they claim exclusivity.
-
-known guaranteed point-to-point link
-
-Additionally, a router that is properly informed by the link layer of the
-disappearance of host can use this signal to return the previously allocated
-exclusive prefix to the set of unallocated ones.
--->
-          </t>
-        </section>
-
-        <section title="Likely sole intended recipient"
-                 anchor="sole_recipient">
-          <t>
-TODO: section about "likely sole recipient" which can be referenced from
-other sections.
           </t>
         </section>
       </section>
@@ -843,6 +839,7 @@ other nodes according to its capabilities and policies.
       &RFC2119;
       &RFC4861;
       &RFC4862;
+      &RFC6275;
       &RFC7559;
     </references>
 
