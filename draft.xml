@@ -123,7 +123,7 @@ NOTES:
 
 <rfc category="exp"
      ipr="trust200902"
-     updates="4861"
+     updates="4861, 6275"
      docName="draft-pioxfolks-6man-pio-exclusive-bit-02">
 
   <!-- category values: std, bcp, info, exp, and historic
@@ -258,10 +258,10 @@ deployment architectures and address space use models.
       <section title="Efficiency improvements">
         <t>
 If a host knows it has exclusive use of a prefix it can perform some
-optimizations to save time an traffic.  It can avoid ND on the receiving
+optimizations to save time and traffic.  It can avoid ND on the receiving
 interface for addresses within these prefixes.  Network interfaces can even
 drop Neighbor Solicitations for these addresses on the receiving interface to
-save power by not waking up more power hungry CPUs.
+save power by not waking up more power-hungry CPUs.
         </t>
         <t>
 Additionally, a host can save time by not performing DAD for addresses within
@@ -269,11 +269,11 @@ an exclusive-use prefix on the receiving interface.  A host that wanted, for
 example, to use 2**64 unique IPv6 source addresses for DNS queries in order to
 improve resilience against forged answers (as recommended in section 9.2 of
 <eref target="RFC5452"/>), could do so without delaying each query from a
-newly formed address.  A node could in theory implement the same strategy using
-<eref target="RFC4429">Optimistic Duplicate Address Detection</eref>, but
-it could be very unfriendly to the network infrastructure
+newly formed address.  A node could in theory implement the same strategy
+using <eref target="RFC4429">Optimistic Duplicate Address Detection</eref>,
+but it could be very unfriendly to the network infrastructure
 (in terms of {link-layer, IP address} pair state)
-to do so without some explicit signal.
+to do so without this kind of explicit signal.
         </t>
       </section>
 
@@ -326,7 +326,7 @@ et cetera) can collectively guarantee all of the following criteria are met:
         <list style="numbers">
           <t>
 an RA containing a PIO with the X bit set MUST be delivered to
-one and only target node (host), for lifetime of the recipient
+one and only target node (host), for the lifetime of the recipient
 node's continuous attachment to the network
           </t>
           <t>
@@ -345,8 +345,8 @@ be delivered.
 It is expected that in practice this primarily describes networks where
 the IPv6 infrastructure and the link-layer have a tight integration.
 All point-to-point links meet these criteria (e.g. PPPoE and VPNs),
-as does the 3GPP architecture [link] and some IEEE 802.11 architectures
-[link to johnb's doc].
+as does the 3GPP architecture [link] and some IEEE 802.11 deployment
+architectures [link to johnb's doc].
       </t>
     </section>
 
@@ -394,7 +394,9 @@ exclusive use prefix.
     <section title="Updated Prefix Information Option">
       <t>
 This document updates the Prefix Information Option specification in
-RFC 4861, section 4.6.2 with the definition of a bit from the former Reserved1
+<eref target="RFC4861">RFC 4861</eref> section 4.6.2 and
+<eref target="RFC6275">RFC 6275</eref> section 7.2
+with the definition of a bit from the former Reserved1
 field as follows.
       </t>
 
