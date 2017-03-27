@@ -40,18 +40,7 @@ NOTES:
 
     - registering w/ sleep proxy (woodyatt); specify not applicable
 
-    - clarify router can't select any address(es) for itself from the PIO-X
-        (petrescu)
-
-    - difference in semantics from PD: the network keeps the client refreshed
-      whereas in PD the client is responsible for refreshing its prefix from
-      the server
-
-    - R bit (Router Address; IPv6 Mobility)
-
 ***
-
-    - Add MIPv6 doc to list of "updates:" RFCs
 
     - Add section requesting IANA to create registry of PIO flags
 
@@ -90,6 +79,8 @@ NOTES:
     SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6275.xml">
   <!ENTITY RFC6418
     SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6418.xml">
+  <!ENTITY RFC7066
+    SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7066.xml">
   <!ENTITY RFC7278
     SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7278.xml">
   <!ENTITY RFC7559
@@ -123,7 +114,7 @@ NOTES:
 
 <rfc category="exp"
      ipr="trust200902"
-     updates="4861, 6275"
+     updates="4861,6275"
      docName="draft-pioxfolks-6man-pio-exclusive-bit-02">
 
   <!-- category values: std, bcp, info, exp, and historic
@@ -345,8 +336,16 @@ be delivered.
 It is expected that in practice this primarily describes networks where
 the IPv6 infrastructure and the link-layer have a tight integration.
 All point-to-point links meet these criteria (e.g. PPPoE and VPNs),
-as does the 3GPP architecture [link] and some IEEE 802.11 deployment
-architectures [link to johnb's doc].
+as does the 3GPP architecture <xref target="RFC7066"/> and some
+IEEE 802.11 deployment architectures
+(<eref target="https://tools.ietf.org/html/draft-ietf-v6ops-unique-ipv6-prefix-per-host"/>).
+      </t>
+      <t>
+Note there is a key difference in semantics from DHCPv6 Prefix Delegation:
+with PIO-X the network keeps the client refreshed with its prefix whereas
+with DHCPv6 PD the client is responsible for refreshing its prefix from
+the server.  This is one reason it is important for the data link layer
+to be able to quickly inform routers of client detachment.
       </t>
     </section>
 
@@ -403,25 +402,25 @@ field as follows.
       <section title="Updated format description">
         <figure align="center">
           <artwork align="left"><![CDATA[
-       0                   1                   2                   3
-       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |     Type      |    Length     | Prefix Length |L|A|R|X| Rsrvd1|
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |                         Valid Lifetime                        |
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |                       Preferred Lifetime                      |
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |                           Reserved2                           |
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |                                                               |
-      +                                                               +
-      |                                                               |
-      +                            Prefix                             +
-      |                                                               |
-      +                                                               +
-      |                                                               |
-      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |     Type      |    Length     | Prefix Length |L|A|R|X| Rsrvd1|
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                         Valid Lifetime                        |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                       Preferred Lifetime                      |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                           Reserved2                           |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   +                                                               +
+   |                                                               |
+   +                            Prefix                             +
+   |                                                               |
+   +                                                               +
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ]]>
           </artwork>
         </figure>
@@ -476,15 +475,6 @@ processing of RAs and PIO-X options when a PIO-X option is present.
         <section anchor="pio-x_sole_recipient"
                  title="Verify sole recipient">
 <t>
-A node receiving a PIO-X option MUST verify that it is the (likely) sole
-intended recipient of the PIO-X RA.  This done by verifying that the RA is
-unicast to the node at the IPv6 layer and, if applicable, at the link layer.
-On links that provide the node with a guarantee that it is the only possible
-PIO-X RA recipient (e.g.  PPP, 3GPP links) this validation step SHOULD NOT
-be performed.
-</t>
-
-<t>
 If an address other than :: (the unspecified address) was used as the source
 address for one or more Router Solicitations (RS) on this link, the node MUST
 verify that the IPv6 destination address of the PIO-X RA is one of the RS
@@ -492,18 +482,6 @@ source addresses in use.  If the link over which this communication takes
 place is known to be point-to-point, i.e. the nature of the link ensures that
 the node is the only possible recipient of an RA this check SHOULD NOT be
 performed.
-</t>
-
-<t>
-If the node receives a PIO-X RA over a link-layer medium that supports
-link-layer addresses, it MUST verify that the link-layer destination address
-of the PIO-X RA is its own link-layer address.  If the node received a PIO-X RA
-over a point-to-point medium (such as PPP) this step is unnecessary.
-</t>
-
-<t>
-If any part of this "sole unicast recipient" verification fails, the node MUST
-ignore the PIO-X bit and continue processing as if it were not set (X=0).
 </t>
         </section>
 
@@ -553,12 +531,21 @@ addresses such that they would be classified as on-link (according to the
 definition in <eref target="RFC5942"/> section 4, item 1).
               </t>
             </section>
+
+            <section title="PIO R bit">
+              <t>
+If the R bit is set then the X bit MUST be ignored. The R bit indicates that
+the PIO includes an address the router has selected for itself from the
+prefix. Logically, the prefix cannot exclusively be used by the receiving
+node if the router has allocated any addresses for itself from the prefix.
+              </t>
+            </section>
         </section>
       </section>
 
       <section anchor="pio-x_transmission" title="Transmitting PIO-X RAs">
 <t>
-When a router transmits an RA containing one or more PIO-X options it MUST
+When a router transmits an RA containing one or more PIO-X options it SHOULD
 unicast the PIO-X RA to its intended recipient at the IPv6 layer and, if
 applicable, at the link-layer.
 </t>
@@ -566,6 +553,11 @@ applicable, at the link-layer.
 It is RECOMMENDED that a PIO with the X-bit set also have the PIO flags
 L=0 and A=1 explicitly configured, for backward compatibility (i.e. use
 by non X-bit aware nodes).
+</t>
+<t>
+A router transmitting a PIO-X RA MUST NOT configure for itself any address
+from with the PIO-X prefix.  (If it did, the prefix would logically no
+longer be of exclusive use for the receiving node.)
 </t>
       </section>
     </section>
@@ -850,6 +842,7 @@ other nodes according to its capabilities and policies.
       &RFC4429;
       &RFC5452;
       &RFC4191;
+      &RFC7066;
       &RFC7934;
     </references>
 
