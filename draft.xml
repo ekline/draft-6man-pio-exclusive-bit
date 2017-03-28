@@ -338,13 +338,6 @@ as does the 3GPP architecture <xref target="RFC7066"/> and some
 IEEE 802.11 deployment architectures
 (<eref target="https://tools.ietf.org/html/draft-ietf-v6ops-unique-ipv6-prefix-per-host"/>).
       </t>
-      <t>
-Note there is a key difference in semantics from DHCPv6 Prefix Delegation:
-with PIO-X the network keeps the client refreshed with its prefix whereas
-with DHCPv6 PD the client is responsible for refreshing its prefix from
-the server.  This is one reason it is important for the data link layer
-to be able to quickly inform routers of client detachment.
-      </t>
     </section>
 
     <section title="Terminology">
@@ -400,25 +393,25 @@ field as follows.
       <section title="Updated format description">
         <figure align="center">
           <artwork align="left"><![CDATA[
-    0                   1                   2                   3
-    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |     Type      |    Length     | Prefix Length |L|A|R|X| Rsrvd1|
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                         Valid Lifetime                        |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                       Preferred Lifetime                      |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                           Reserved2                           |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                                                               |
-   +                                                               +
-   |                                                               |
-   +                            Prefix                             +
-   |                                                               |
-   +                                                               +
-   |                                                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|     Type      |    Length     | Prefix Length |L|A|R|X| Rsrvd1|
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                         Valid Lifetime                        |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                       Preferred Lifetime                      |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                           Reserved2                           |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
++                                                               +
+|                                                               |
++                            Prefix                             +
+|                                                               |
++                                                               +
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ]]>
           </artwork>
         </figure>
@@ -464,7 +457,7 @@ Retain their same meaning from <eref target="RFC4861"/> section 4.6.2.
           </c>
         </texttable>
       </section>
-      <section anchor="pio-x_processing" title="Processing">
+      <section anchor="pio-x_processing" title="Receiver processing">
         <t>
 Nodes compliant with this specification perform the following additional
 processing of RAs and PIO-X options when a PIO-X option is present.
@@ -528,7 +521,7 @@ definition in <eref target="RFC5942"/> section 4, item 1).
         </section>
       </section>
 
-      <section anchor="pio-x_transmission" title="Transmitting PIO-X RAs">
+      <section anchor="pio-x_transmission" title="Sender requirements">
 <t>
 When a router transmits an RA containing one or more PIO-X options it SHOULD
 unicast the PIO-X RA to its intended recipient at the IPv6 layer and, if
@@ -544,6 +537,31 @@ A router transmitting a PIO-X RA MUST NOT configure for itself any address
 from with the PIO-X prefix.  (If it did, the prefix would logically no
 longer be of exclusive use for the receiving node.)
 </t>
+      </section>
+
+      <section anchor="pio-x_vs_dchpv6-pd" title="Comparison with DHCPv6 PD">
+        <t>
+There exists a key difference in semantics between PIO-X and DHCPv6 PD:
+with PIO-X the network keeps the client refreshed with its prefix whereas
+with DHCPv6 PD the client is responsible for refreshing its prefix from
+the server.  This is one reason it is important for the data link layer
+to be able to quickly inform routers of client detachment.
+        </t>
+        <t>
+Another difference is that <eref target="RFC3633"/> section 12.1 states:
+          <figure align="left">
+            <artwork align="left"><![CDATA[
+                                       ... the requesting router MUST
+   NOT assign any delegated prefixes or subnets from the delegated
+   prefix(es) to the link through which it received the DHCP message
+   from the delegating router.
+]]>
+            </artwork>
+          </figure>
+In contrast, a node receiving a PIO-X RA is explicitly free to treat the
+entire prefix as on-link with respect to the interface via which it was
+received.
+        </t>
       </section>
     </section>
 
