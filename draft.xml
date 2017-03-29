@@ -17,14 +17,31 @@ NOTES:
 
 ***
 
-    - router's next hop has to be a link-local
+    ? router's next hop has to be a link-local
 
-    - router SHOULD ignore RSes from ::, in order to get the host to
+    ? router SHOULD ignore RSes from ::, in order to get the host to
       retransmit from link-local
 
 ***
+IETF 98
 
-    - Add section requesting IANA to create registry of PIO flags
+    - Router MUST NOT set L=1, MUST set L=0 (rather than SHOULD)
+    - Hosts may prefer to not send RSes from :: (rather than SHOULD)
+
+    - make clear that this is not mutually exclusive with PD (they can coexist)
+    - Clarify that the X bit applies to the single prefix in the PIO
+    - clarify that the router has already chosen to issue a PIO to the
+      node, no other authentication is necessary
+    - "half-a-bridge" mode, might be useful.
+
+
+    - SeND, if IP-layer auth info is required to choose a prefix (i.e.
+      if it's not effectively random or if link-layer info like
+      802.1x are not sufficient).
+
+***
+
+    ? Add section requesting IANA to create registry of PIO flags
 
 -->
 
@@ -97,7 +114,7 @@ NOTES:
 <rfc category="exp"
      ipr="trust200902"
      updates="4861,6275"
-     docName="draft-pioxfolks-6man-pio-exclusive-bit-02">
+     docName="draft-pioxfolks-6man-pio-exclusive-bit-03">
 
   <!-- category values: std, bcp, info, exp, and historic
      ipr values: full3667, noModification3667, noDerivatives3667

@@ -6,11 +6,11 @@ Internet Engineering Task Force                                 E. Kline
 Internet-Draft                                           Google Japan KK
 Updates: 4861,6275 (if approved)                          M. Abrahamsson
 Intended status: Experimental                           T-Systems Nordic
-Expires: September 28, 2017                               March 27, 2017
+Expires: October 1, 2017                                  March 30, 2017
 
 
    IPv6 Router Advertisement Prefix Information Option eXclusive Flag
-               draft-pioxfolks-6man-pio-exclusive-bit-02
+               draft-pioxfolks-6man-pio-exclusive-bit-03
 
 Abstract
 
@@ -45,18 +45,20 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on September 28, 2017.
-
-Copyright Notice
+   This Internet-Draft will expire on October 1, 2017.
 
 
 
 
 
-Kline & Abrahamsson    Expires September 28, 2017               [Page 1]
+
+
+Kline & Abrahamsson      Expires October 1, 2017                [Page 1]
 
 Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
 
+
+Copyright Notice
 
    Copyright (c) 2017 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
@@ -74,7 +76,7 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   3
-   2.  Motivation  . . . . . . . . . . . . . . . . . . . . . . . . .   3
+   2.  Motivation  . . . . . . . . . . . . . . . . . . . . . . . . .   4
      2.1.  Efficiency improvements . . . . . . . . . . . . . . . . .   4
      2.2.  New architectural possibilities . . . . . . . . . . . . .   4
    3.  Applicability statement . . . . . . . . . . . . . . . . . . .   5
@@ -87,16 +89,16 @@ Table of Contents
    5.  Updated Prefix Information Option . . . . . . . . . . . . . .   6
      5.1.  Updated format description  . . . . . . . . . . . . . . .   6
      5.2.  Receiver processing . . . . . . . . . . . . . . . . . . .   7
-       5.2.1.  PIO R flag  . . . . . . . . . . . . . . . . . . . . .   7
-       5.2.2.  (Re)Interpretation of other flags . . . . . . . . . .   7
+       5.2.1.  PIO R flag  . . . . . . . . . . . . . . . . . . . . .   8
+       5.2.2.  (Re)Interpretation of other flags . . . . . . . . . .   8
          5.2.2.1.  PIO L flag  . . . . . . . . . . . . . . . . . . .   8
          5.2.2.2.  PIO A flag  . . . . . . . . . . . . . . . . . . .   8
-     5.3.  Sender requirements . . . . . . . . . . . . . . . . . . .   8
+     5.3.  Sender requirements . . . . . . . . . . . . . . . . . . .   9
      5.4.  Comparison with DHCPv6 PD . . . . . . . . . . . . . . . .   9
    6.  Host behavior . . . . . . . . . . . . . . . . . . . . . . . .   9
      6.1.  PIO-X processing  . . . . . . . . . . . . . . . . . . . .   9
-     6.2.  Neighbor Discovery implications . . . . . . . . . . . . .   9
-       6.2.1.  Duplicate Address Detection (DAD) . . . . . . . . . .   9
+     6.2.  Neighbor Discovery implications . . . . . . . . . . . . .  10
+       6.2.1.  Duplicate Address Detection (DAD) . . . . . . . . . .  10
        6.2.2.  Router Solicitations (RSes) . . . . . . . . . . . . .  10
      6.3.  Link-local address behavior . . . . . . . . . . . . . . .  10
      6.4.  Source address selection  . . . . . . . . . . . . . . . .  10
@@ -104,16 +106,16 @@ Table of Contents
      6.6.  Implications for Detecting Network Attachment . . . . . .  11
      6.7.  Additional guidance . . . . . . . . . . . . . . . . . . .  11
    7.  Router behavior . . . . . . . . . . . . . . . . . . . . . . .  11
-     7.1.  PIO-X RA destination address  . . . . . . . . . . . . . .  11
-     7.2.  Detecting hosts to send PIO-X RAs to  . . . . . . . . . .  12
 
 
 
-Kline & Abrahamsson    Expires September 28, 2017               [Page 2]
+Kline & Abrahamsson      Expires October 1, 2017                [Page 2]
 
 Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
 
 
+     7.1.  PIO-X RA destination address  . . . . . . . . . . . . . .  11
+     7.2.  Detecting hosts to send PIO-X RAs to  . . . . . . . . . .  12
      7.3.  Binding table requirements  . . . . . . . . . . . . . . .  12
      7.4.  Preparations before sending a PIO-X RA  . . . . . . . . .  13
      7.5.  Implementation considerations . . . . . . . . . . . . . .  13
@@ -123,6 +125,7 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
    11. References  . . . . . . . . . . . . . . . . . . . . . . . . .  14
      11.1.  Normative References . . . . . . . . . . . . . . . . . .  14
      11.2.  Informative References . . . . . . . . . . . . . . . . .  14
+     11.3.  URIs . . . . . . . . . . . . . . . . . . . . . . . . . .  15
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  15
 
 1.  Introduction
@@ -159,16 +162,15 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
    it, and can process the PIO under existing standards, making use of
    the information exactly as if the X flag were not set.
 
-2.  Motivation
 
 
 
-
-
-Kline & Abrahamsson    Expires September 28, 2017               [Page 3]
+Kline & Abrahamsson      Expires October 1, 2017                [Page 3]
 
 Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
 
+
+2.  Motivation
 
    This work is motivated by the pursuit of two categories of benefits:
    modest host and network side improvements in efficiency, and support
@@ -187,10 +189,10 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
    addresses within an exclusive-use prefix on the receiving interface.
    A host that wanted, for example, to use 2**64 unique IPv6 source
    addresses for DNS queries in order to improve resilience against
-   forged answers (as recommended in section 9.2 of [1]), could do so
-   without delaying each query from a newly formed address.  A node
+   forged answers (as recommended in section 9.2 of <RFC5452>), could do
+   so without delaying each query from a newly formed address.  A node
    could in theory implement the same strategy using Optimistic
-   Duplicate Address Detection [2], but it could be very unfriendly to
+   Duplicate Address Detection [1], but it could be very unfriendly to
    the network infrastructure (in terms of {link-layer, IP address} pair
    state) to do so without this kind of explicit signal.
 
@@ -208,9 +210,21 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
    client node) so that the host is the only node to receive a specific
    prefix, including
 
-   o  DHCPv6 Prefix Delegation to hosts ([3]), and
+   o  DHCPv6 Prefix Delegation to hosts (<https://tools.ietf.org/html/
+      draft-templin-v6ops-pdhost>), and
 
-   o  advertising a unique prefix per host via unique RAs.  ([4]).
+   o  advertising a unique prefix per host via unique RAs.
+      (<https://tools.ietf.org/html/draft-ietf-v6ops-unique-ipv6-prefix-
+      per-host>).
+
+
+
+
+
+Kline & Abrahamsson      Expires October 1, 2017                [Page 4]
+
+Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
+
 
    Some architectures further isolate the host layers below IPv6, for
    improved client node security.
@@ -218,19 +232,12 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
    Regardless of the specific level of isolation, the host can best make
    choices about its use of a prefix exclusively forwarded to itself if
    the host can be informed of the exclusivity.  (In the case of a
-
-
-
-Kline & Abrahamsson    Expires September 28, 2017               [Page 4]
-
-Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
-
-
    DHCPv6 Prefix Delegation the prefix can be assumed to be of exclusive
    use by the requesting node, in accordance with the model in
    [RFC3633].)  An implementation can, for example, safely "bind to an
-   IPv6 subnet" in the style of [5], or start 64sharing [6] (given a
-   prefix of sufficient size).
+   IPv6 subnet" in the style of <http://www.potaroo.net/ispcol/2016-09/
+   subnetbind.html>, or start 64sharing [2] (given a prefix of
+   sufficient size).
 
    This memo documents an additional flag in the IPv6 RA PIO that makes
    this information explicit to receiving node.
@@ -267,20 +274,16 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
    where the IPv6 infrastructure and the link-layer have a tight
    integration.  All point-to-point links meet these criteria (e.g.
    PPPoE and VPNs), as does the 3GPP architecture [RFC7066] and some
-   IEEE 802.11 deployment architectures ([7]).
 
 
 
-
-
-
-
-
-
-Kline & Abrahamsson    Expires September 28, 2017               [Page 5]
+Kline & Abrahamsson      Expires October 1, 2017                [Page 5]
 
 Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
 
+
+   IEEE 802.11 deployment architectures (<https://tools.ietf.org/html/
+   draft-ietf-v6ops-unique-ipv6-prefix-per-host>).
 
 4.  Terminology
 
@@ -316,65 +319,80 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
 5.  Updated Prefix Information Option
 
    This document updates the Prefix Information Option specification in
-   RFC 4861 [8] section 4.6.2 and RFC 6275 [9] section 7.2 with the
+   RFC 4861 [3] section 4.6.2 and RFC 6275 [4] section 7.2 with the
    definition of a flag from the former Reserved1 field as follows.
 
 5.1.  Updated format description
 
-      0                   1                   2                   3
-      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     |     Type      |    Length     | Prefix Length |L|A|R|X| Rsrvd1|
-     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     |                         Valid Lifetime                        |
-     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     |                       Preferred Lifetime                      |
-     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 
 
-Kline & Abrahamsson    Expires September 28, 2017               [Page 6]
+
+
+
+
+
+
+Kline & Abrahamsson      Expires October 1, 2017                [Page 6]
 
 Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
 
 
-     |                           Reserved2                           |
-     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     |                                                               |
-     +                                                               +
-     |                                                               |
-     +                            Prefix                             +
-     |                                                               |
-     +                                                               +
-     |                                                               |
-     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |     Type      |    Length     | Prefix Length |L|A|R|X| Rsrvd1|
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                         Valid Lifetime                        |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                       Preferred Lifetime                      |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                           Reserved2                           |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   +                                                               +
+   |                                                               |
+   +                            Prefix                             +
+   |                                                               |
+   +                                                               +
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 
    Fields:
 
-   X          The eXclusive use indicator flag, defined by this document.
-              When set, the receiving node can be assured that all traffic
-              destined to any address within the specified Prefix will be
-              forwarded to itself by, at a minimum, the router from which
-              the encapsulating RA was received, but possibly other routers
-              as well.
+  X        The eXclusive use indicator flag, defined by this document.
+           When set, the receiving node can be assured that all traffic
+           destined to any address within the specified Prefix will be
+           forwarded to itself by, at a minimum, the router from which
+           the encapsulating RA was received, but possibly other routers
+           as well.
 
-              When not set, the receiving node MUST NOT make any
-              assumptions of exclusive use of the specified Prefix, i.e.
-              processing is unchanged from previous standards behavior.
+           When not set, the receiving node MUST NOT make any
+           assumptions of exclusive use of the specified Prefix, i.e.
+           processing is unchanged from previous standards behavior.
 
-   Rsrvd1     Retains the same meaning as Reserved1 from [10] section
-              4.6.2.
+  Rsrvd1   Retains the same meaning as Reserved1 from <RFC4861> section
+           4.6.2.
 
-   All        Retain their same meaning from [11] section 4.6.2.
-   other
-   fields
+  All      Retain their same meaning from <RFC4861> section 4.6.2.
+  other
+  fields
 
 5.2.  Receiver processing
 
    Nodes compliant with this specification perform the following
    additional processing of RAs and PIO-X options when a PIO-X option is
    present.
+
+
+
+
+
+Kline & Abrahamsson      Expires October 1, 2017                [Page 7]
+
+Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
+
 
 5.2.1.  PIO R flag
 
@@ -385,14 +403,6 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
    addresses for itself from the prefix.
 
 5.2.2.  (Re)Interpretation of other flags
-
-
-
-
-Kline & Abrahamsson    Expires September 28, 2017               [Page 7]
-
-Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
-
 
    Nodes compliant with this specification, i.e. those that understand
    the X-flag, MUST, when the X-flag is set, ignore the actual values of
@@ -412,17 +422,17 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
    RA was received.
 
    Note that a given address from within the prefix may be considered
-   on-link according to the definition in [12] section 4, item 1, should
-   the receiving node chose to configure that address on said link, but
-   this is in no way synonymous with the entire prefix being considered
-   on-link.
+   on-link according to the definition in <RFC5942> section 4, item 1,
+   should the receiving node chose to configure that address on said
+   link, but this is in no way synonymous with the entire prefix being
+   considered on-link.
 
 5.2.2.2.  PIO A flag
 
    Because a PIO-X aware node will know that it has exclusive use of a
    prefix with non-zero valid lifetime, autoconfiguration of addresses
-   according to any desired scheme, e.g. [13], [14], et cetera, is
-   implicit in the setting of the X flag.
+   according to any desired scheme, e.g. <RFC4862>, <RFC7217>, et
+   cetera, is implicit in the setting of the X flag.
 
    Accordingly, the A flag can be interpreted as having been set, should
    the host choose to apply standard address generation schemes that
@@ -431,7 +441,14 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
    required to configure the address on the link over which the PIO-X RA
    was received (i.e. it is under no obligation to form addresses such
    that they would be classified as on-link (according to the definition
-   in [15] section 4, item 1).
+   in <RFC5942> section 4, item 1).
+
+
+
+Kline & Abrahamsson      Expires October 1, 2017                [Page 8]
+
+Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
+
 
 5.3.  Sender requirements
 
@@ -442,13 +459,6 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
    It is RECOMMENDED that a PIO with the X-flag set also have the PIO
    flags L=0 and A=1 explicitly configured, for backward compatibility
    (i.e. use by non X-flag aware nodes).
-
-
-
-Kline & Abrahamsson    Expires September 28, 2017               [Page 8]
-
-Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
-
 
    A router transmitting a PIO-X RA MUST NOT configure for itself any
    address from with the PIO-X prefix.  (If it did, the prefix would
@@ -463,7 +473,7 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
    data link layer to be able to quickly inform routers of client
    detachment.
 
-   Another difference is that [16] section 12.1 states:
+   Another difference is that <RFC3633> section 12.1 states:
 
                                           ... the requesting router MUST
       NOT assign any delegated prefixes or subnets from the delegated
@@ -483,38 +493,33 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
 
    A receiving node compliant with this document processes an RA with a
    PIO entry with the X flag set according the requirements in previous
-   standards documents (chiefly [17] section 6.3.4) subject to the
+   standards documents (chiefly <RFC4861> section 6.3.4) subject to the
    additional requirements documented in Section 5.2.
+
+
+
+
+
+
+Kline & Abrahamsson      Expires October 1, 2017                [Page 9]
+
+Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
+
 
 6.2.  Neighbor Discovery implications
 
 6.2.1.  Duplicate Address Detection (DAD)
 
-
-
-
-
-
-
-
-
-
-
-
-Kline & Abrahamsson    Expires September 28, 2017               [Page 9]
-
-Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
-
-
    Whatever use the host makes of the exclusive prefix during its valid
    lifetime, it SHOULD NOT perform Duplicate Address Detection ("DAD",
-   [18] section 5.4) on any address it configures from within the prefix
-   if that address is configured on either the interface over which the
-   PIO-X RA was received or on a loopback interface.  Note that this
-   does not absolve the host from performing DAD in all scenarios; if,
-   for example, the host uses the prefix for 64sharing [19] it MUST at a
-   minimum defend via DAD any addresses it has configured for itself as
-   documented in Requirement 2 of [20] section 3.
+   <RFC4862> section 5.4) on any address it configures from within the
+   prefix if that address is configured on either the interface over
+   which the PIO-X RA was received or on a loopback interface.  Note
+   that this does not absolve the host from performing DAD in all
+   scenarios; if, for example, the host uses the prefix for 64sharing
+   [5] it MUST at a minimum defend via DAD any addresses it has
+   configured for itself as documented in Requirement 2 of <RFC7278>
+   section 3.
 
 6.2.2.  Router Solicitations (RSes)
 
@@ -552,12 +557,7 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
 
 
 
-
-
-
-
-
-Kline & Abrahamsson    Expires September 28, 2017              [Page 10]
+Kline & Abrahamsson      Expires October 1, 2017               [Page 10]
 
 Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
 
@@ -570,8 +570,8 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
 6.6.  Implications for Detecting Network Attachment
 
    TODO: Describe implications for Detecting Network Attachment in IPv6
-   [21] (DNAv6).  Probably the best that can be done is (a) no change to
-   RFC6059 coupled with (b) a host MAY send a test packet (e.g. ICMPv6
+   [6] (DNAv6).  Probably the best that can be done is (a) no change to
+   RFC6059 coupled with (b) a host MAY send a test packet (e.g.  ICMPv6
    Echo Request) with a source and destination address from within the
    PIO-X prefix to the PIO-X RA issuing router and verify the packet is
    delivered back to itself.  Consistent failure to receive such traffic
@@ -613,7 +613,7 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
 
 
 
-Kline & Abrahamsson    Expires September 28, 2017              [Page 11]
+Kline & Abrahamsson      Expires October 1, 2017               [Page 11]
 
 Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
 
@@ -656,27 +656,24 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
        ("grace period"), of the prefix.
 
    R3  The router MUST monitor the reachability of each node in the
-       binding table via Neighbor Unreachability Detection ("NUD", [22]
-       section 7.3) or an equivalent link-layer mechanism.
+       binding table via Neighbor Unreachability Detection ("NUD",
+       <RFC4861> section 7.3) or an equivalent link-layer mechanism.
 
    R4  The binding SHOULD be considered refreshed every time a periodic
        PIO-X RA is sent to a node.
 
+   R5  If the router is informed by some other mechanism (link-layer
+       indication for instance) that a node is no longer connected to
+       the link, it MAY immediately invalidate the prefix binding.
 
 
 
 
-
-
-
-Kline & Abrahamsson    Expires September 28, 2017              [Page 12]
+Kline & Abrahamsson      Expires October 1, 2017               [Page 12]
 
 Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
 
 
-   R5  If the router is informed by some other mechanism (link-layer
-       indication for instance) that a node is no longer connected to
-       the link, it MAY immediately invalidate the prefix binding.
        (DISCUSS: Is this the correct approach?  Do we want to point to
        some definition somewhere else?)
 
@@ -702,10 +699,10 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
    lifetimes.  Separately, one or more other nodes on the link may
    announce exclusive PIO information to nodes along with zero default
    router lifetimes.  Except in the presence of a non-expired more
-   specific route, e.g. learning from an [23] Route Information Option
-   (RIO), the receiving node should send exclusive use prefix originated
-   or forwarded traffic destined off-link through routers with non-zero
-   default router lifetimes.
+   specific route, e.g. learning from an <RFC4191> Route Information
+   Option (RIO), the receiving node should send exclusive use prefix
+   originated or forwarded traffic destined off-link through routers
+   with non-zero default router lifetimes.
 
 8.  Acknowledgements
 
@@ -725,7 +722,10 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
 
 
 
-Kline & Abrahamsson    Expires September 28, 2017              [Page 13]
+
+
+
+Kline & Abrahamsson      Expires October 1, 2017               [Page 13]
 
 Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
 
@@ -735,7 +735,9 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
 11.1.  Normative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
-              Requirement Levels", BCP 14, RFC 2119, March 1997.
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <http://www.rfc-editor.org/info/rfc2119>.
 
    [RFC4861]  Narten, T., Nordmark, E., Simpson, W., and H. Soliman,
               "Neighbor Discovery for IP version 6 (IPv6)", RFC 4861,
@@ -743,8 +745,8 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
               <http://www.rfc-editor.org/info/rfc4861>.
 
    [RFC4862]  Thomson, S., Narten, T., and T. Jinmei, "IPv6 Stateless
-              Address Autoconfiguration", RFC 4862, DOI 10.17487/
-              RFC4862, September 2007,
+              Address Autoconfiguration", RFC 4862,
+              DOI 10.17487/RFC4862, September 2007,
               <http://www.rfc-editor.org/info/rfc4862>.
 
    [RFC6275]  Perkins, C., Ed., Johnson, D., and J. Arkko, "Mobility
@@ -752,8 +754,8 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
               2011, <http://www.rfc-editor.org/info/rfc6275>.
 
    [RFC7559]  Krishnan, S., Anipko, D., and D. Thaler, "Packet-Loss
-              Resiliency for Router Solicitations", RFC 7559, DOI
-              10.17487/RFC7559, May 2015,
+              Resiliency for Router Solicitations", RFC 7559,
+              DOI 10.17487/RFC7559, May 2015,
               <http://www.rfc-editor.org/info/rfc7559>.
 
 11.2.  Informative References
@@ -772,27 +774,41 @@ Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
               <http://www.rfc-editor.org/info/rfc4429>.
 
    [RFC5452]  Hubert, A. and R. van Mook, "Measures for Making DNS More
-              Resilient against Forged Answers", RFC 5452, DOI 10.17487/
-              RFC5452, January 2009,
+              Resilient against Forged Answers", RFC 5452,
+              DOI 10.17487/RFC5452, January 2009,
               <http://www.rfc-editor.org/info/rfc5452>.
 
-   [RFC7066]  Korhonen, J., Ed., Arkko, J., Ed., Savolainen, T., and S.
-              Krishnan, "IPv6 for Third Generation Partnership Project
 
 
 
-Kline & Abrahamsson    Expires September 28, 2017              [Page 14]
+Kline & Abrahamsson      Expires October 1, 2017               [Page 14]
 
 Internet-Draft         IPv6 RA PIO eXclusive Flag             March 2017
 
 
+   [RFC7066]  Korhonen, J., Ed., Arkko, J., Ed., Savolainen, T., and S.
+              Krishnan, "IPv6 for Third Generation Partnership Project
               (3GPP) Cellular Hosts", RFC 7066, DOI 10.17487/RFC7066,
               November 2013, <http://www.rfc-editor.org/info/rfc7066>.
 
    [RFC7934]  Colitti, L., Cerf, V., Cheshire, S., and D. Schinazi,
-              "Host Address Availability Recommendations", BCP 204, RFC
-              7934, DOI 10.17487/RFC7934, July 2016,
+              "Host Address Availability Recommendations", BCP 204,
+              RFC 7934, DOI 10.17487/RFC7934, July 2016,
               <http://www.rfc-editor.org/info/rfc7934>.
+
+11.3.  URIs
+
+   [1] RFC4429
+
+   [2] RFC7278
+
+   [3] RFC4861
+
+   [4] RFC6275
+
+   [5] RFC7278
+
+   [6] RFC6059
 
 Authors' Addresses
 
@@ -821,20 +837,4 @@ Authors' Addresses
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Kline & Abrahamsson    Expires September 28, 2017              [Page 15]
+Kline & Abrahamsson      Expires October 1, 2017               [Page 15]
